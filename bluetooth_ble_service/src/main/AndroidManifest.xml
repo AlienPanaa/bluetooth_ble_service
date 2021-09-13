@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.alien.module_bluetooth_ble">
+
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"
+        tools:ignore="CoarseFineLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+
+
+    <application>
+        <service android:name="com.alien.bluetooth_ble_service.bluetooth_type.service.BluetoothService" />
+        <service android:name="com.alien.bluetooth_ble_service.ble_type.service.BLEService" />
+    </application>
+</manifest>
