@@ -63,10 +63,6 @@ public abstract class BluetoothBinder extends Binder {
         context.startActivity(intent);
     }
 
-    public abstract boolean serverConnectDevice();
-
-    public abstract boolean serverCloseDevice();
-
     public abstract boolean clientConnectDevice(BluetoothDevice device);
 
     public abstract boolean clientCloseDevice();

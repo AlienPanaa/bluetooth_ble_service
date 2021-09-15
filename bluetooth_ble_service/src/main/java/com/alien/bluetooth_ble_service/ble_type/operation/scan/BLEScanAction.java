@@ -1,4 +1,4 @@
-package com.alien.bluetooth_ble_service.ble_type.scan;
+package com.alien.bluetooth_ble_service.ble_type.operation.scan;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.le.BluetoothLeScanner;
@@ -11,8 +11,9 @@ import android.bluetooth.le.ScanSettings;
 import com.alien.bluetooth_ble_service.basic_type.listener.BluetoothDeviceListener;
 import com.alien.bluetooth_ble_service.basic_type.listener.ScanStateListener;
 import com.alien.bluetooth_ble_service.basic_type.scan.BluetoothScan;
-import com.alien.bluetooth_ble_service.ble_type.controller.BLEController;
+import com.alien.bluetooth_ble_service.ble_type.controller.BleController;
 import com.alien.bluetooth_ble_service.ble_type.listener.ScanResultListener;
+import com.alien.bluetooth_ble_service.ble_type.setting.ScanInfo;
 
 import java.util.List;
 
@@ -70,8 +71,10 @@ public class BLEScanAction extends BluetoothScan {
         } else {
             result = true;
 
-            ScanSettings settings = BLEController.getInstance().getBluetoothSetting().getSettings();
-            List<ScanFilter> filters = BLEController.getInstance().getBluetoothSetting().getFilters();
+            ScanInfo scanInfo = BleController.getInstance().getBluetoothSetting().getScanInfo();
+
+            ScanSettings settings = scanInfo.getScanSettings();
+            List<ScanFilter> filters = scanInfo.getScanFilters();
 
             bluetoothLeScanner.startScan(filters, settings, scanCallback);
 

@@ -9,32 +9,33 @@ import androidx.annotation.NonNull;
 import com.alien.bluetooth_ble_service.ble_type.service.BLEService;
 import com.alien.bluetooth_ble_service.basic_type.contoller.CommonController;
 import com.alien.bluetooth_ble_service.basic_type.service.BluetoothCommonService;
-import com.alien.bluetooth_ble_service.ble_type.service.BLEServiceBinder;
+import com.alien.bluetooth_ble_service.ble_type.service.BleServiceBinder;
+import com.alien.bluetooth_ble_service.ble_type.setting.BleSetting;
 
 
-public class BLEController extends CommonController<BLESetting.Builder> {
-    private static final String TAG = BLEController.class.getSimpleName();
-    private static final BLEController instance = new BLEController();
+public class BleController extends CommonController<BleSetting> {
+    private static final String TAG = BleController.class.getSimpleName();
+    private static final BleController instance = new BleController();
     private static final int BLE_CODE_IN_MAP = 0x10 << 3;
 
-    private BLESetting bleSetting = BLESetting.getDefaultSetting();
+    private BleSetting bleSetting = BleSetting.getDefaultSetting();
 
 
-    private BLEController() { }
+    private BleController() { }
 
-    public static BLEController getInstance() {
+    public static BleController getInstance() {
         return instance;
     }
 
-    public CommonController<BLESetting.Builder> setBluetoothSetting(BLESetting setting) {
+    public CommonController<BleSetting> setBluetoothSetting(BleSetting setting) {
         this.bleSetting = setting;
 
         return this;
     }
 
     @Override
-    public BLESetting.Builder getBluetoothSetting() {
-        return bleSetting.getSetting();
+    public BleSetting getBluetoothSetting() {
+        return bleSetting;
     }
 
     @Override
@@ -57,7 +58,7 @@ public class BLEController extends CommonController<BLESetting.Builder> {
     }
 
     @Override
-    public BLEServiceBinder getServiceBinder() throws Exception {
-        return (BLEServiceBinder) super.getServiceBinder();
+    public BleServiceBinder getServiceBinder() throws Exception {
+        return (BleServiceBinder) super.getServiceBinder();
     }
 }

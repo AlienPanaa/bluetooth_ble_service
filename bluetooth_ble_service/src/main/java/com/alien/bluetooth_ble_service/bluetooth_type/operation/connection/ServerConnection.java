@@ -36,7 +36,7 @@ public class ServerConnection extends Connection {
                     try (BluetoothSocket socket = mServerSocket.accept(timeout)) {
                         socketListener.onSocket(socket);
                     } catch (Exception e) {
-                        bluetoothSetting.getErrorListener().onError(BluetoothErrorListener.SERVER_CONNECT_FAIL, e);
+                        bluetoothSetting.getBluetoothErrorListener().onError(BluetoothErrorListener.SERVER_CONNECT_FAIL, e);
                     }
 
                 },

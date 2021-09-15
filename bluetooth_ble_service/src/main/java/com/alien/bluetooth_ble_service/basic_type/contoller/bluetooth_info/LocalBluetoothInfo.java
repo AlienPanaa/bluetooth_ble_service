@@ -7,6 +7,8 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 
+import com.alien.bluetooth_ble_service.basic_type.exception.SdkUnSupportException;
+
 import java.util.Set;
 
 public class LocalBluetoothInfo {
@@ -38,12 +40,12 @@ public class LocalBluetoothInfo {
         return adapter.getBondedDevices();
     }
 
-    public int getLeMaximumAdvertisingDataLength() throws Exception {
+    public int getLeMaximumAdvertisingDataLength() throws SdkUnSupportException {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return adapter.getLeMaximumAdvertisingDataLength();
         }
 
-        throw new Exception("Api request 26. Your driver is " + Build.VERSION.SDK_INT);
+        throw new SdkUnSupportException(Build.VERSION_CODES.O);
     }
 
 

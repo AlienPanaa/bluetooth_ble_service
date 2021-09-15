@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import com.alien.bluetooth_ble_service.bluetooth_type.controller.BluetoothController;
 import com.alien.bluetooth_ble_service.basic_type.scan.BluetoothScan;
 import com.alien.bluetooth_ble_service.basic_type.service.BluetoothBinder;
-import com.alien.bluetooth_ble_service.bluetooth_type.controller.BluetoothSetting;
+import com.alien.bluetooth_ble_service.bluetooth_type.setting.BluetoothSetting;
 import com.alien.bluetooth_ble_service.bluetooth_type.operation.connection.ClientConnection;
 import com.alien.bluetooth_ble_service.bluetooth_type.operation.connection.ServerConnection;
 import com.alien.bluetooth_ble_service.bluetooth_type.operation.read_write.BluetoothReadWriteSocket;
@@ -33,7 +33,7 @@ public class BluetoothServiceBinder extends BluetoothBinder {
     @NonNull
     @Override
     public BluetoothAdapter getBluetoothAdapter(@NonNull Context context) {
-        BluetoothSetting.Builder bluetoothSetting = BluetoothController.getInstance().getBluetoothSetting();
+        BluetoothSetting bluetoothSetting = BluetoothController.getInstance().getBluetoothSetting();
 
         return bluetoothSetting.getBluetoothAdapter() == null
                 ? bluetoothSetting.getDefaultBluetoothAdapter(context) : bluetoothSetting.getBluetoothAdapter();
@@ -49,12 +49,10 @@ public class BluetoothServiceBinder extends BluetoothBinder {
         return super.searchDevice(12_000);
     }
 
-    @Override
     public synchronized boolean serverConnectDevice() {
         return serverConnection.connectDevice();
     }
 
-    @Override
     public synchronized boolean serverCloseDevice() {
         return serverConnection.closeDevice();
     }

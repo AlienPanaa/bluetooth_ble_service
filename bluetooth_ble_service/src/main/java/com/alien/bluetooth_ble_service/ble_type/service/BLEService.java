@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 
 import com.alien.bluetooth_ble_service.basic_type.service.BluetoothCommonService;
 import com.alien.bluetooth_ble_service.basic_type.setting.CommonSetting;
-import com.alien.bluetooth_ble_service.ble_type.controller.BLEController;
+import com.alien.bluetooth_ble_service.ble_type.controller.BleController;
 
 
 public class BLEService extends BluetoothCommonService {
@@ -101,14 +101,14 @@ public class BLEService extends BluetoothCommonService {
 
     @Override
     protected CommonSetting getCommonSetting() {
-        return BLEController.getInstance().getBluetoothSetting();
+        return BleController.getInstance().getBluetoothSetting();
     }
 
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return new BLEServiceBinder(this, callback);
+        return new BleServiceBinder(this, callback);
     }
 
 }

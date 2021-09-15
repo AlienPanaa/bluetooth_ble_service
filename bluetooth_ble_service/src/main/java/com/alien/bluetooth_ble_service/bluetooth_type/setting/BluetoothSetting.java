@@ -1,4 +1,4 @@
-package com.alien.bluetooth_ble_service.bluetooth_type.controller;
+package com.alien.bluetooth_ble_service.bluetooth_type.setting;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -18,7 +18,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
 
 
-public class BluetoothSetting {
+public class BluetoothSetting extends CommonSetting {
     private static final String TAG = BluetoothSetting.class.getSimpleName();
 
     @IntDef(
@@ -31,21 +31,54 @@ public class BluetoothSetting {
     @Retention(RetentionPolicy.SOURCE)
     @interface ScanMode {}
 
-    private final Builder builder;
+
+    private final BluetoothServerInfo serverInfo;
+    private final BluetoothClientInfo clientInfo;
+    private final UUID uuid;
+
+    private final BluetoothErrorListener bluetoothErrorListener;
+
+    private final int scanMode;
 
     BluetoothSetting(@NonNull Builder builder) {
-        this.builder = builder;
+        super(builder);
+        this.serverInfo = builder.serverInfo;
+        this.clientInfo = builder.clientInfo;
+        this.uuid = builder.uuid;
+        this.bluetoothErrorListener = builder.bluetoothErrorListener;
+        this.scanMode = builder.scanMode;
     }
 
-    public Builder getSetting() {
-        return builder;
+    public BluetoothServerInfo getServerInfo() {
+        return serverInfo;
+    }
+
+    public BluetoothClientInfo getClientInfo() {
+        return clientInfo;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public BluetoothErrorListener getBluetoothErrorListener() {
+        return bluetoothErrorListener;
+    }
+
+    public int getScanMode() {
+        return scanMode;
+    }
+
+    @Override
+    public BluetoothAdapter getDefaultBluetoothAdapter(@NonNull Context context) {
+        return BluetoothAdapter.getDefaultAdapter();
     }
 
     public static BluetoothSetting getDefaultSetting() {
         return new Builder().build();
     }
 
-    public static final class Builder extends CommonSetting {
+    public static final class Builder extends CommonSetting.Builder {
         private BluetoothServerInfo serverInfo;
         private BluetoothClientInfo clientInfo;
         private UUID uuid;
@@ -93,11 +126,6 @@ public class BluetoothSetting {
 
         public void setClientInfo(BluetoothClientInfo clientInfo) {
             this.clientInfo = clientInfo;
-        }
-
-        @Override
-        public BluetoothAdapter getDefaultBluetoothAdapter(@NonNull Context context) {
-            return BluetoothAdapter.getDefaultAdapter();
         }
 
         public BluetoothSetting build() {

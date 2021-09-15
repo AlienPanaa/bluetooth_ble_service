@@ -5,7 +5,7 @@ import androidx.annotation.IntDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-public interface BLEErrorListener {
+public interface BleErrorListener {
 
     int DEVICE_LOSE_BLUETOOTH = 1;
 

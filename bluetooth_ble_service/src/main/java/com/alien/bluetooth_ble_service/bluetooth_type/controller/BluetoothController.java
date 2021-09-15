@@ -13,9 +13,10 @@ import com.alien.bluetooth_ble_service.basic_type.contoller.CommonController;
 import com.alien.bluetooth_ble_service.basic_type.service.BluetoothCommonService;
 import com.alien.bluetooth_ble_service.bluetooth_type.listener.BluetoothErrorListener;
 import com.alien.bluetooth_ble_service.bluetooth_type.service.BluetoothServiceBinder;
+import com.alien.bluetooth_ble_service.bluetooth_type.setting.BluetoothSetting;
 
 
-public class BluetoothController extends CommonController<BluetoothSetting.Builder> {
+public class BluetoothController extends CommonController<BluetoothSetting> {
     private static final String TAG = BluetoothController.class.getSimpleName();
     private static final BluetoothController instance = new BluetoothController();
     private static final int BLUETOOTH_CODE_IN_MAP = 0x10 << 2;
@@ -31,8 +32,8 @@ public class BluetoothController extends CommonController<BluetoothSetting.Build
         return instance;
     }
 
-    public BluetoothSetting.Builder getBluetoothSetting() {
-        return bluetoothSetting.getSetting();
+    public BluetoothSetting getBluetoothSetting() {
+        return bluetoothSetting;
     }
 
     public void setBluetoothSetting(@NonNull BluetoothSetting bluetoothSetting) {
@@ -41,10 +42,9 @@ public class BluetoothController extends CommonController<BluetoothSetting.Build
 
     @Override
     public boolean checkHardware(@NonNull Context context) {
-        BluetoothSetting.Builder setting = bluetoothSetting.getSetting();
 
-        if(setting.getBluetoothAdapter() == null) {
-            setting.getErrorListener().onError(BluetoothErrorListener.DEVICE_LOSE_BLUETOOTH);
+        if(bluetoothSetting.getBluetoothAdapter() == null) {
+            bluetoothSetting.getBluetoothErrorListener().onError(BluetoothErrorListener.DEVICE_LOSE_BLUETOOTH);
             return false;
         }
 
@@ -88,8 +88,7 @@ public class BluetoothController extends CommonController<BluetoothSetting.Build
     }
 
     private void startProxy(@NonNull Context context, int profile) {
-        BluetoothSetting.Builder setting = bluetoothSetting.getSetting();
-        BluetoothAdapter bluetoothAdapter = setting.getBluetoothAdapter();
+        BluetoothAdapter bluetoothAdapter = bluetoothSetting.getBluetoothAdapter();
 
         bluetoothAdapter.getProfileProxy(context, new BluetoothProfile.ServiceListener() {
             public void onServiceConnected(int profile, BluetoothProfile proxy) {
@@ -103,8 +102,7 @@ public class BluetoothController extends CommonController<BluetoothSetting.Build
     }
 
     private void closeProxy(int profile) {
-        BluetoothSetting.Builder setting = bluetoothSetting.getSetting();
-        BluetoothAdapter bluetoothAdapter = setting.getBluetoothAdapter();
+        BluetoothAdapter bluetoothAdapter = bluetoothSetting.getBluetoothAdapter();
 
         bluetoothAdapter.closeProfileProxy(profile, bluetoothHeadset);
     }
