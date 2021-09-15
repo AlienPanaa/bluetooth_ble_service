@@ -1,6 +1,5 @@
-package com.alien.bluetooth_ble_service.ble_type.setting;
+package com.alien.bluetooth_ble_service.ble_type.bean;
 
-import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.os.ParcelUuid;

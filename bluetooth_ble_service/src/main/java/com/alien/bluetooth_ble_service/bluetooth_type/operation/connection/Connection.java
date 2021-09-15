@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 
 
 import com.alien.bluetooth_ble_service.bluetooth_type.controller.BluetoothController;
-import com.alien.bluetooth_ble_service.bluetooth_type.setting.BluetoothSetting;
+import com.alien.bluetooth_ble_service.bluetooth_type.setting.BluetoothConnectSetting;
 import com.alien.bluetooth_ble_service.bluetooth_type.listener.BluetoothErrorListener;
 import com.alien.bluetooth_ble_service.bluetooth_type.operation.read_write.BluetoothReadWriteSocket;
 
@@ -27,15 +27,15 @@ public abstract class Connection {
     private final Map<UUID, ConnectionInfo> socketMap = new HashMap<>();
 
     protected final BluetoothAdapter bluetoothAdapter;
-    protected final BluetoothSetting bluetoothSetting;
+    protected final BluetoothErrorListener bluetoothErrorListener;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
     public Connection() {
 
-        bluetoothSetting = BluetoothController.getInstance().getBluetoothSetting();
+        bluetoothErrorListener = BluetoothController.getInstance().getBluetoothSetting().getBluetoothErrorListener();
 
-        this.bluetoothAdapter = bluetoothSetting.getBluetoothAdapter();
+        this.bluetoothAdapter = BluetoothController.getInstance().getBluetoothSetting().getBluetoothAdapter();
     }
 
     @FunctionalInterface
@@ -49,9 +49,7 @@ public abstract class Connection {
     }
 
     @Nullable
-    public BluetoothReadWriteSocket getBluetoothReadWriteSocket() {
-        UUID uuid = bluetoothSetting.getUuid();
-
+    public BluetoothReadWriteSocket getBluetoothReadWriteSocket(UUID uuid) {
         ConnectionInfo connectionInfo = socketMap.get(uuid);
         if(connectionInfo == null || connectionInfo.getBluetoothSocket() == null) {
             return null;
@@ -64,14 +62,13 @@ public abstract class Connection {
         return bluetoothAdapter.cancelDiscovery();
     }
 
-    public final boolean connectDevice() {
+    public final boolean connectDevice(BluetoothConnectSetting setting) {
         boolean result = true;
 
-        UUID uuid = bluetoothSetting.getUuid();
+        UUID uuid = setting.getUuid();
 
         if(socketMap.containsKey(uuid) && socketMap.get(uuid) != null) {
-            bluetoothSetting.getBluetoothErrorListener()
-                    .onError(BluetoothErrorListener.ALREADY_CONNECTED, new Exception("UUID already connect:" + uuid));
+            bluetoothErrorListener.onError(BluetoothErrorListener.ALREADY_CONNECTED, new Exception("UUID already connect:" + uuid));
 
             return false;
         }
@@ -79,25 +76,21 @@ public abstract class Connection {
         if(!cancelDiscovery()) {
             result = false;
 
-            bluetoothSetting.getBluetoothErrorListener()
-                    .onError(BluetoothErrorListener.CLIENT_CONNECT_FAIL, new Exception("Fail with uuid: " + uuid));
+            bluetoothErrorListener.onError(BluetoothErrorListener.CLIENT_CONNECT_FAIL, new Exception("Fail with uuid: " + uuid));
         }
 
-        connect(uuid, (socket -> socketMap.put(uuid, new ConnectionInfo(socket))));
+        connect(setting, (socket -> socketMap.put(uuid, new ConnectionInfo(socket))));
 
         return result;
     }
 
 
-    public boolean closeDevice() {
-
-        UUID uuid = bluetoothSetting.getUuid();
+    public boolean closeDevice(UUID uuid) {
 
         ConnectionInfo connectionInfo = socketMap.get(uuid);
 
         if(!socketMap.containsKey(uuid) || connectionInfo == null || connectionInfo.getBluetoothSocket() == null) {
-            bluetoothSetting.getBluetoothErrorListener()
-                    .onError(BluetoothErrorListener.HAVE_NOT_CONNECTED, new Exception("UUID haven't connect:" + uuid));
+            bluetoothErrorListener.onError(BluetoothErrorListener.HAVE_NOT_CONNECTED, new Exception("UUID haven't connect:" + uuid));
 
             return false;
         }
@@ -109,7 +102,7 @@ public abstract class Connection {
         return result;
     }
 
-    protected abstract void connect(UUID uuid, SocketListener socketListener);
+    protected abstract void connect(BluetoothConnectSetting setting, SocketListener socketListener);
 
     protected abstract boolean close(@NonNull BluetoothSocket socket);
 
@@ -124,7 +117,7 @@ public abstract class Connection {
             } catch (Exception e) {
                 Log.e(TAG, "connectDevice method failed", e);
 
-                bluetoothSetting.getBluetoothErrorListener().onError(errorCode, e);
+                bluetoothErrorListener.onError(errorCode, e);
             }
         });
     }
@@ -139,7 +132,7 @@ public abstract class Connection {
         } catch (Exception e) {
             Log.e(TAG, "Could not close the connect socket", e);
 
-            bluetoothSetting.getBluetoothErrorListener().onError(errorCode, e);
+            bluetoothErrorListener.onError(errorCode, e);
 
             return false;
         }

@@ -6,24 +6,22 @@ import android.bluetooth.BluetoothSocket;
 import androidx.annotation.NonNull;
 
 import com.alien.bluetooth_ble_service.bluetooth_type.listener.BluetoothErrorListener;
-import com.alien.bluetooth_ble_service.bluetooth_type.info_bean.BluetoothServerInfo;
-
-import java.util.UUID;
+import com.alien.bluetooth_ble_service.bluetooth_type.setting.BluetoothConnectSetting;
 
 public class ServerConnection extends Connection {
     private static final String TAG = ServerConnection.class.getSimpleName();
 
     @Override
-    public void connect(UUID uuid, SocketListener socketListener) {
-        BluetoothServerInfo serverInfo = bluetoothSetting.getServerInfo();
+    public void connect(BluetoothConnectSetting setting, SocketListener socketListener) {
+//        BluetoothConnectSetting serverInfo = bluetoothSetting.getServerInfo();
 
-        String name = serverInfo.getName();
-        int timeout = serverInfo.getTimeout();
+        String name = setting.getName();
+        int timeout = setting.getTimeout();
 
         connectionAction(
                 () -> {
                     BluetoothServerSocket mServerSocket =
-                            bluetoothAdapter.listenUsingRfcommWithServiceRecord(name, uuid);
+                            bluetoothAdapter.listenUsingRfcommWithServiceRecord(name, setting.getUuid());
 
 //                    while (true) {
 //
@@ -36,7 +34,7 @@ public class ServerConnection extends Connection {
                     try (BluetoothSocket socket = mServerSocket.accept(timeout)) {
                         socketListener.onSocket(socket);
                     } catch (Exception e) {
-                        bluetoothSetting.getBluetoothErrorListener().onError(BluetoothErrorListener.SERVER_CONNECT_FAIL, e);
+                        bluetoothErrorListener.onError(BluetoothErrorListener.SERVER_CONNECT_FAIL, e);
                     }
 
                 },

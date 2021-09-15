@@ -13,8 +13,11 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 
 import com.alien.bluetooth_ble_service.basic_type.service.BluetoothCommonService;
-import com.alien.bluetooth_ble_service.basic_type.setting.CommonSetting;
+import com.alien.bluetooth_ble_service.basic_type.setting.ScanSetting;
 import com.alien.bluetooth_ble_service.bluetooth_type.controller.BluetoothController;
+
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class BluetoothService extends BluetoothCommonService {
@@ -26,6 +29,8 @@ public class BluetoothService extends BluetoothCommonService {
             BluetoothAdapter.ACTION_DISCOVERY_STARTED,
             BluetoothAdapter.ACTION_DISCOVERY_FINISHED,
     };
+
+    private final Set<String> deviceRecord = new HashSet<>();
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
 
@@ -62,9 +67,34 @@ public class BluetoothService extends BluetoothCommonService {
 
     };
 
-    @Override
-    protected CommonSetting getCommonSetting() {
-        return BluetoothController.getInstance().getBluetoothSetting();
+    protected void notifyScanState(boolean isScanning) {
+        ScanSetting scanSetting = BluetoothServiceBinder.getScanSetting();
+
+        if(!isScanning) {
+            deviceRecord.clear();
+        }
+
+        if(scanSetting != null) {
+            scanSetting.getScanStateListener().onScanState(isScanning);
+        }
+    }
+
+
+    protected void notifyScanResult(BluetoothDevice device) {
+        ScanSetting scanSetting = BluetoothServiceBinder.getScanSetting();
+
+        if(scanSetting != null) {
+            boolean ignoreSame = scanSetting.isIgnoreSame();
+
+            if(ignoreSame) {
+                boolean add = deviceRecord.add(device.getAddress());
+
+                if(!add) {
+                    return;
+                }
+            }
+            scanSetting.getBluetoothDeviceListener().onBluetoothDevice(device);
+        }
     }
 
     @Nullable

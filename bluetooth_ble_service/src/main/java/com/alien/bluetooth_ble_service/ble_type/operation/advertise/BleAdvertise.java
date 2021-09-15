@@ -6,7 +6,7 @@ import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.util.Log;
 
-import com.alien.bluetooth_ble_service.ble_type.setting.AdvertiseInfo;
+import com.alien.bluetooth_ble_service.ble_type.bean.AdvertiseInfo;
 
 public class BleAdvertise extends AdvertiseCallback {
     private static final String TAG = BleAdvertise.class.getSimpleName();

@@ -7,8 +7,7 @@ import androidx.annotation.NonNull;
 
 
 import com.alien.bluetooth_ble_service.bluetooth_type.listener.BluetoothErrorListener;
-
-import java.util.UUID;
+import com.alien.bluetooth_ble_service.bluetooth_type.setting.BluetoothConnectSetting;
 
 public class ClientConnection extends Connection {
 
@@ -20,11 +19,11 @@ public class ClientConnection extends Connection {
     }
 
     @Override
-    protected void connect(UUID uuid, SocketListener socketListener) {
+    protected void connect(BluetoothConnectSetting setting, SocketListener socketListener) {
 
         connectionAction(
                 () -> {
-                    BluetoothSocket socket = device.createRfcommSocketToServiceRecord(uuid);
+                    BluetoothSocket socket = device.createRfcommSocketToServiceRecord(setting.getUuid());
 
                     socket.connect();
 

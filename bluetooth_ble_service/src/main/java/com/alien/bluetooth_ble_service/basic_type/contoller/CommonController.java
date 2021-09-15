@@ -33,7 +33,7 @@ public abstract class CommonController<T extends CommonSetting>
     public static final int REQUEST_BLUETOOTH_PERMISSION = 0xA0;
 
     @NonNull
-    public String[] checkPermission(@NonNull Activity activity) {
+    public String[] requestPermission(@NonNull Activity activity) {
         ArrayList<String> arrayList = new ArrayList<>();
 
         for(String permission : BLUETOOTH_PERMISSIONS) {
@@ -70,7 +70,7 @@ public abstract class CommonController<T extends CommonSetting>
 
         return new LocalBluetoothInfo(adapter);
     }
-    
+
 
     public CommonController<T> requestBluetoothEnable(@NonNull Activity activity) {
         CommonSetting bluetoothSetting = getBluetoothSetting();

@@ -8,6 +8,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.alien.bluetooth_ble_service.basic_type.setting.CommonSetting;
+import com.alien.bluetooth_ble_service.ble_type.bean.AdvertiseInfo;
+import com.alien.bluetooth_ble_service.ble_type.bean.ScanInfo;
 import com.alien.bluetooth_ble_service.ble_type.listener.BleErrorListener;
 import com.alien.bluetooth_ble_service.ble_type.listener.ScanResultListener;
 
@@ -15,19 +17,15 @@ public class BleSetting extends CommonSetting {
     private static final String TAG = BleSetting.class.getSimpleName();
 
     private final AdvertiseInfo advertiseInfo;
-    private final ScanInfo scanInfo;
 
     private final BleErrorListener BLEErrorListener;
-    private final ScanResultListener scanResultListener;
 
     private final boolean autoConnect;
 
     BleSetting(@NonNull Builder builder) {
         super(builder);
         this.advertiseInfo = builder.getAdvertiseInfo();
-        this.scanInfo = builder.getScanInfo();
         this.BLEErrorListener = builder.getBleErrorListener();
-        this.scanResultListener = builder.getScanResultListener();
         this.autoConnect = builder.isAutoConnect();
     }
 
@@ -39,16 +37,8 @@ public class BleSetting extends CommonSetting {
         return advertiseInfo;
     }
 
-    public ScanInfo getScanInfo() {
-        return scanInfo;
-    }
-
     public BleErrorListener getBleErrorListener() {
         return BLEErrorListener;
-    }
-
-    public ScanResultListener getScanResultListener() {
-        return scanResultListener;
     }
 
     public BluetoothAdapter getDefaultBluetoothAdapter(@NonNull Context context) {
@@ -65,10 +55,8 @@ public class BleSetting extends CommonSetting {
 
     public static final class Builder extends CommonSetting.Builder {
         private AdvertiseInfo advertiseInfo;
-        private ScanInfo scanInfo;
 
         private BleErrorListener BleErrorListener;
-        private ScanResultListener scanResultListener;
 
         private boolean autoConnect;
 
@@ -86,14 +74,6 @@ public class BleSetting extends CommonSetting {
             return this;
         }
 
-        public ScanInfo getScanInfo() {
-            return scanInfo;
-        }
-
-        public void setScanInfo(ScanInfo scanInfo) {
-            this.scanInfo = scanInfo;
-        }
-
         public BleErrorListener getBleErrorListener() {
             return BleErrorListener;
         }
@@ -103,14 +83,6 @@ public class BleSetting extends CommonSetting {
             return this;
         }
 
-        public ScanResultListener getScanResultListener() {
-            return scanResultListener;
-        }
-
-        public Builder setScanResultListener(ScanResultListener scanResultListener) {
-            this.scanResultListener = scanResultListener;
-            return this;
-        }
 
         public BleErrorListener getErrorListener() {
             return BleErrorListener;
@@ -128,22 +100,6 @@ public class BleSetting extends CommonSetting {
         public BleSetting build() {
             if(BleErrorListener == null) {
                 BleErrorListener = (errorCode, e) -> Log.e(TAG, "BluetoothController error: " + errorCode);
-            }
-
-            if(scanResultListener == null) {
-                scanResultListener = result -> Log.i(TAG, result.toString());
-            }
-
-            if(getBluetoothDeviceListener() == null) {
-                setScanResultListener(bluetoothDevice -> Log.i(TAG, "bluetoothDevice info: " + bluetoothDevice));
-            }
-
-            if(getScanStateListener() == null) {
-                setScanStateListener(isScanning -> Log.i(TAG, "Bluetooth is scanning: " + isScanning));
-            }
-
-            if(scanInfo == null) {
-                scanInfo = ScanInfo.getDefault();
             }
 
             if(advertiseInfo == null) {

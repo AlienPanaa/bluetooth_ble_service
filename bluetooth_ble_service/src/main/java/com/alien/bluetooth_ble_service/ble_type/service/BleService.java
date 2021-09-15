@@ -11,13 +11,11 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 import com.alien.bluetooth_ble_service.basic_type.service.BluetoothCommonService;
-import com.alien.bluetooth_ble_service.basic_type.setting.CommonSetting;
-import com.alien.bluetooth_ble_service.ble_type.controller.BleController;
 
 
-public class BLEService extends BluetoothCommonService {
+public class BleService extends BluetoothCommonService {
 
-    private static final String TAG = BLEService.class.getSimpleName();
+    private static final String TAG = BleService.class.getSimpleName();
 
     private final BluetoothGattCallback callback = new BluetoothGattCallback() {
 
@@ -98,12 +96,6 @@ public class BLEService extends BluetoothCommonService {
         }
 
     };
-
-    @Override
-    protected CommonSetting getCommonSetting() {
-        return BleController.getInstance().getBluetoothSetting();
-    }
-
 
     @Nullable
     @Override

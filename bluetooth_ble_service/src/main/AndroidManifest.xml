@@ -17,6 +17,6 @@
 
     <application>
         <service android:name="com.alien.bluetooth_ble_service.bluetooth_type.service.BluetoothService" />
-        <service android:name="com.alien.bluetooth_ble_service.ble_type.service.BLEService" />
+        <service android:name="com.alien.bluetooth_ble_service.ble_type.service.BleService" />
     </application>
 </manifest>

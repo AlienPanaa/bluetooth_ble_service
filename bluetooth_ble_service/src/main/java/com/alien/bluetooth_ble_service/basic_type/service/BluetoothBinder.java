@@ -11,8 +11,7 @@ import androidx.annotation.Size;
 
 
 import com.alien.bluetooth_ble_service.basic_type.scan.BluetoothScan;
-
-import java.util.Set;
+import com.alien.bluetooth_ble_service.basic_type.setting.ScanSetting;
 
 public abstract class BluetoothBinder extends Binder {
 
@@ -24,24 +23,14 @@ public abstract class BluetoothBinder extends Binder {
     protected final Context context;
     protected final BluetoothAdapter bluetoothAdapter;
 
-    private final BluetoothScan bluetoothScan;
-
     public BluetoothBinder(@NonNull Context context) {
         this.context = context;
 
         bluetoothAdapter = getBluetoothAdapter(context);
-        this.bluetoothScan = getBluetoothScanner(bluetoothAdapter);
     }
 
     @NonNull
     public abstract BluetoothAdapter getBluetoothAdapter(@NonNull Context context);
-
-    @NonNull
-    public abstract BluetoothScan getBluetoothScanner(BluetoothAdapter bluetoothAdapter);
-
-    public boolean searchDevice(long scanTime) {
-        return bluetoothScan.startScan(scanTime);
-    }
 
     public void requestDiscoverableDevice(@Size(min = 1L, max = 300L) int secondTime) {
         sendIntent((Intent intent) -> {
@@ -63,8 +52,5 @@ public abstract class BluetoothBinder extends Binder {
         context.startActivity(intent);
     }
 
-    public abstract boolean clientConnectDevice(BluetoothDevice device);
-
-    public abstract boolean clientCloseDevice();
 
 }

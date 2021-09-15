@@ -1,6 +1,5 @@
 package com.alien.bluetooth;
 
-import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,52 +9,62 @@ import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.alien.bluetooth.databinding.ActivityMainBinding;
-import com.alien.module_bluetooth_ble.base_view.BluetoothHandleRequest;
-import com.alien.module_bluetooth_ble.bluetooth_type.controller.BluetoothController;
-import com.alien.module_bluetooth_ble.bluetooth_type.controller.BluetoothSetting;
-import com.alien.module_bluetooth_ble.bluetooth_type.service.BluetoothServiceBinder;
-
-import java.util.Set;
+import com.alien.bluetooth_ble_service.base_view.BluetoothHandleRequest;
+import com.alien.bluetooth_ble_service.basic_type.contoller.bluetooth_info.LocalBluetoothInfo;
+import com.alien.bluetooth_ble_service.basic_type.setting.ScanSetting;
+import com.alien.bluetooth_ble_service.bluetooth_type.controller.BluetoothController;
+import com.alien.bluetooth_ble_service.bluetooth_type.service.BluetoothServiceBinder;
+import com.alien.bluetooth_ble_service.bluetooth_type.setting.BluetoothSetting;
 
 public class MainActivity extends BluetoothHandleRequest {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private ActivityMainBinding binding;
     private BluetoothListAdapter bluetoothListAdapter;
+    private BluetoothServiceBinder bluetoothServiceBinder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
+        boolean hasBluetooth = BluetoothController.getInstance().checkHardware(this);
+
+        if(!hasBluetooth) {
+            return;
+        }
+
+        if(BluetoothController.getInstance().requestPermission(this).length != 0) {
+            BluetoothController.getInstance().requestBluetoothEnable(this);
+        }
+
+        initView();
+
+        initBluetoothSetting();
+
+        LocalBluetoothInfo localBluetoothInfo = BluetoothController.getInstance().getLocalBluetoothInfo(this);
+        Log.i(TAG, "pairedDevice: " + localBluetoothInfo.getBondedDevices().toString());
+
+    }
+
+    private void initBluetoothSetting() {
+
         BluetoothSetting.Builder builder = new BluetoothSetting.Builder()
-                .setErrorListener((errorCode, e) ->
-                        Log.w(TAG, "errorCode: " + errorCode, e));
+                .setErrorListener((errorCode, e) -> Log.w(TAG, "errorCode: " + errorCode, e));
 
         BluetoothController.getInstance().setBluetoothSetting(builder.build());
 
 
-        initView();
+        BluetoothController.getInstance().startService(this, (isStart) -> {
+            Log.i(TAG, "Start Service success");
 
-        initEvent();
+            try {
+                bluetoothServiceBinder = BluetoothController.getInstance().getServiceBinder();
 
-    }
-
-    private void initEvent() {
-        BluetoothController.getInstance().getBluetoothSetting()
-                .setIgnoreSame(true)
-                .setScanStateListener((isScanning) ->
-                        Toast.makeText(this, "Is scanning? " + isScanning, Toast.LENGTH_SHORT).show())
-                .setBluetoothDeviceListener((bluetoothDevice) -> {
-
-                    String deviceName = bluetoothDevice.getName();
-                    String deviceHardwareAddress = bluetoothDevice.getAddress(); // MAC address
-
-                    Log.i(TAG, "deviceName: " + deviceName + ", address: " + deviceHardwareAddress);
-
-                    bluetoothListAdapter.addDevice(deviceHardwareAddress);
-
-                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 
     }
 
@@ -73,38 +82,25 @@ public class MainActivity extends BluetoothHandleRequest {
         binding.bluetoothList.setAdapter(bluetoothListAdapter);
 
         binding.startService.setOnClickListener((v) -> {
-            BluetoothController.getInstance().startService(this, (isStart) -> {
-                Log.i(TAG, "Start Service success");
 
-
-                boolean hasBluetooth = BluetoothController.getInstance().checkHardware(this);
-
-                if(hasBluetooth) {
-                    String[] losePermission = BluetoothController.getInstance()
-                            .checkPermission(this);
-
-                    if(losePermission.length == 0) {
-                        BluetoothController.getInstance().requestBluetoothEnable(this);
-                    }
-                }
-
-            });
         });
 
-        binding.closeService.setOnClickListener((v) -> BluetoothController.getInstance().closeService(this));
+        binding.closeService.setOnClickListener((v) -> {
+
+        });
 
         binding.scan.setOnClickListener((v) -> {
-            try {
-                BluetoothServiceBinder bluetoothServiceBinder = BluetoothController.getInstance().getServiceBinder();
+            bluetoothServiceBinder.searchDevice(new ScanSetting()
+                    .setIgnoreSame(true)
+                    .setScanStateListener(isScanning -> Toast.makeText(this, "Is scanning? " + isScanning, Toast.LENGTH_SHORT).show())
+                    .setBluetoothDeviceListener(bluetoothDevice -> {
+                        String deviceName = bluetoothDevice.getName();
+                        String deviceHardwareAddress = bluetoothDevice.getAddress(); // MAC address
 
-                Set<BluetoothDevice> pairedDevice = bluetoothServiceBinder.getPairedDevice();
+                        Log.i(TAG, "deviceName: " + deviceName + ", address: " + deviceHardwareAddress);
 
-                Log.i(TAG, "pairedDevice: " + pairedDevice.toString());
-
-                bluetoothServiceBinder.searchDevice();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                        bluetoothListAdapter.addDevice(deviceHardwareAddress);
+                    }));
         });
 
         binding.ble.setOnClickListener((v) -> startActivity(new Intent(this, MainActivity2.class)));

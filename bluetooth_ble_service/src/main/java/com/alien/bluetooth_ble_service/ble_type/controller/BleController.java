@@ -6,7 +6,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.alien.bluetooth_ble_service.ble_type.service.BLEService;
+import com.alien.bluetooth_ble_service.ble_type.service.BleService;
 import com.alien.bluetooth_ble_service.basic_type.contoller.CommonController;
 import com.alien.bluetooth_ble_service.basic_type.service.BluetoothCommonService;
 import com.alien.bluetooth_ble_service.ble_type.service.BleServiceBinder;
@@ -49,7 +49,7 @@ public class BleController extends CommonController<BleSetting> {
 
     @Override
     protected Class<? extends BluetoothCommonService> getServiceClass() {
-        return BLEService.class;
+        return BleService.class;
     }
 
     @Override

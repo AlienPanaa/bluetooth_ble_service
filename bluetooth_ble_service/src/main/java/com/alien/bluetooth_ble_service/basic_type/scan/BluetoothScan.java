@@ -4,8 +4,10 @@ import android.bluetooth.BluetoothAdapter;
 import android.os.CountDownTimer;
 import android.util.Log;
 
+import com.alien.bluetooth_ble_service.basic_type.setting.ScanSetting;
 
-public abstract class BluetoothScan {
+
+public abstract class BluetoothScan<T extends ScanSetting> {
     private static final String TAG = BluetoothScan.class.getSimpleName();
 
     private final BluetoothAdapter bluetoothAdapter;
@@ -16,15 +18,15 @@ public abstract class BluetoothScan {
         this.bluetoothAdapter = bluetoothAdapter;
     }
 
-    public final boolean startScan(long scanTime) {
+    public final boolean startScan(T scanSetting) {
         boolean result;
 
-        if(bluetoothAdapter.isDiscovering() && !stopScanAction(bluetoothAdapter)) {
+        if(bluetoothAdapter.isDiscovering() && !stopScanAction(bluetoothAdapter, scanSetting)) {
             return false;
 
         }
 
-        countDownTimer = new CountDownTimer(scanTime, 1000) {
+        countDownTimer = new CountDownTimer(scanSetting.getScanTime(), 1000) {
 
             @Override
             public void onTick(long l) {
@@ -33,24 +35,24 @@ public abstract class BluetoothScan {
 
             @Override
             public void onFinish() {
-                stopScanAction(bluetoothAdapter);
+                stopScanAction(bluetoothAdapter, scanSetting);
 
-                scanFinishAction();
+                scanFinishAction(scanSetting);
 
                 countDownTimer.cancel();
             }
 
         }.start();
 
-        result = startScanAction(bluetoothAdapter);
+        result = startScanAction(bluetoothAdapter, scanSetting);
 
         return result;
     }
 
-    protected void scanFinishAction() { }
+    protected void scanFinishAction(ScanSetting scanSetting) { }
 
-    protected abstract boolean startScanAction(BluetoothAdapter bluetoothAdapter);
+    protected abstract boolean startScanAction(BluetoothAdapter bluetoothAdapter, T scanSetting);
 
-    protected abstract boolean stopScanAction(BluetoothAdapter bluetoothAdapter);
+    protected abstract boolean stopScanAction(BluetoothAdapter bluetoothAdapter, T scanSetting);
 
 }

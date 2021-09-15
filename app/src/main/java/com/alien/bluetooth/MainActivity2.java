@@ -1,6 +1,5 @@
 package com.alien.bluetooth;
 
-import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -10,57 +9,62 @@ import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.alien.bluetooth.databinding.ActivityMain2Binding;
-import com.alien.module_bluetooth_ble.ble_type.controller.BLEController;
-import com.alien.module_bluetooth_ble.ble_type.controller.BLESetting;
-import com.alien.module_bluetooth_ble.ble_type.service.BLEServiceBinder;
-
-import java.util.Set;
+import com.alien.bluetooth_ble_service.ble_type.controller.BleController;
+import com.alien.bluetooth_ble_service.ble_type.service.BleServiceBinder;
+import com.alien.bluetooth_ble_service.ble_type.setting.BleScanSetting;
+import com.alien.bluetooth_ble_service.ble_type.setting.BleSetting;
 
 public class MainActivity2 extends AppCompatActivity {
     private static final String TAG = MainActivity2.class.getSimpleName();
 
     private ActivityMain2Binding binding;
     private BluetoothListAdapter bluetoothListAdapter;
+    private BleServiceBinder bleServiceBinder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main2);
 
-        BLESetting.Builder builder = new BLESetting.Builder()
-                .setErrorListener((errorCode, e) ->
-                        Log.w(TAG, "errorCode: " + errorCode, e));
 
-        BLEController.getInstance().setBluetoothSetting(builder.build());
 
+        boolean hasBluetooth = BleController.getInstance().checkHardware(this);
+
+        if(!hasBluetooth) {
+            return;
+        }
+
+        if(BleController.getInstance().requestPermission(this).length != 0) {
+            BleController.getInstance().requestBluetoothEnable(this);
+        }
 
         initView();
 
-        initEvent();
+        initBluetoothSetting();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        BLEController.getInstance().closeService(this);
+        BleController.getInstance().closeService(this);
     }
 
-    private void initEvent() {
-        BLEController.getInstance().getBluetoothSetting()
-                .setIgnoreSame(true)
-                .setScanStateListener((isScanning) ->
-                        Toast.makeText(this, "Is scanning? " + isScanning, Toast.LENGTH_SHORT).show())
-                .setBluetoothDeviceListener((bluetoothDevice) -> {
+    private void initBluetoothSetting() {
+        BleSetting.Builder builder = (BleSetting.Builder) new BleSetting.Builder()
+                .setErrorListener((errorCode, e) -> Log.w(TAG, "errorCode: " + errorCode, e));
 
-                    String deviceName = bluetoothDevice.getName();
-                    String deviceHardwareAddress = bluetoothDevice.getAddress(); // MAC address
+        BleController.getInstance().setBluetoothSetting(builder.build());
 
-                    Log.i(TAG, "deviceName: " + deviceName + ", address: " + deviceHardwareAddress);
+        BleController.getInstance().startService(this, (isStart) -> {
+            Log.i(TAG, "Start Service success");
 
-                    bluetoothListAdapter.addDevice(deviceHardwareAddress);
-
-                });
+            try {
+                bleServiceBinder = BleController.getInstance().getServiceBinder();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 
     }
 
@@ -71,38 +75,27 @@ public class MainActivity2 extends AppCompatActivity {
         binding.bluetoothList.setAdapter(bluetoothListAdapter);
 
         binding.startService.setOnClickListener((v) -> {
-            BLEController.getInstance().startService(this, (isStart) -> {
-                Log.i(TAG, "Start Service success");
-
-
-                boolean hasBluetooth = BLEController.getInstance().checkHardware(this);
-
-                if(hasBluetooth) {
-                    String[] losePermission = BLEController.getInstance()
-                            .checkPermission(this);
-
-                    if(losePermission.length == 0) {
-                        BLEController.getInstance().requestBluetoothEnable(this);
-                    }
-                }
-
-            });
         });
 
-        binding.closeService.setOnClickListener((v) -> BLEController.getInstance().closeService(this));
+        binding.closeService.setOnClickListener((v) -> {
+
+        });
 
         binding.scan.setOnClickListener((v) -> {
-            try {
-                BLEServiceBinder bluetoothServiceBinder = BLEController.getInstance().getServiceBinder();
+            bleServiceBinder.searchDevice((BleScanSetting) new BleScanSetting()
+                    .setIgnoreSame(true)
+                    .setScanStateListener((isScanning) ->
+                            Toast.makeText(this, "Is scanning? " + isScanning, Toast.LENGTH_SHORT).show())
+                    .setBluetoothDeviceListener((bluetoothDevice) -> {
 
-                Set<BluetoothDevice> pairedDevice = bluetoothServiceBinder.getPairedDevice();
+                        String deviceName = bluetoothDevice.getName();
+                        String deviceHardwareAddress = bluetoothDevice.getAddress(); // MAC address
 
-                Log.i(TAG, "pairedDevice: " + pairedDevice.toString());
+                        Log.i(TAG, "deviceName: " + deviceName + ", address: " + deviceHardwareAddress);
 
-                bluetoothServiceBinder.searchDevice(10_000);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                        bluetoothListAdapter.addDevice(deviceHardwareAddress);
+
+                    }));
         });
 
     }
