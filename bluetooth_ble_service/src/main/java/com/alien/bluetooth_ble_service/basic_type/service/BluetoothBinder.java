@@ -39,10 +39,6 @@ public abstract class BluetoothBinder extends Binder {
     @NonNull
     public abstract BluetoothScan getBluetoothScanner(BluetoothAdapter bluetoothAdapter);
 
-    public Set<BluetoothDevice> getPairedDevice(){
-        return bluetoothAdapter.getBondedDevices();
-    }
-
     public boolean searchDevice(long scanTime) {
         return bluetoothScan.startScan(scanTime);
     }

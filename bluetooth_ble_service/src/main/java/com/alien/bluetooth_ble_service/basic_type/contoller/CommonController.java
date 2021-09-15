@@ -11,6 +11,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 
+import com.alien.bluetooth_ble_service.basic_type.contoller.bluetooth_info.LocalBluetoothInfo;
 import com.alien.bluetooth_ble_service.basic_type.setting.CommonSetting;
 
 import java.util.ArrayList;
@@ -58,6 +59,18 @@ public abstract class CommonController<T extends CommonSetting>
     public abstract T getBluetoothSetting();
 
     public abstract boolean checkHardware(@NonNull Context context);
+
+    public LocalBluetoothInfo getLocalBluetoothInfo(@NonNull Context context) {
+        CommonSetting bluetoothSetting = getBluetoothSetting();
+
+        BluetoothAdapter adapter = bluetoothSetting.getBluetoothAdapter();
+        if(adapter == null) {
+            adapter = bluetoothSetting.getDefaultBluetoothAdapter(context);
+        }
+
+        return new LocalBluetoothInfo(adapter);
+    }
+    
 
     public CommonController<T> requestBluetoothEnable(@NonNull Activity activity) {
         CommonSetting bluetoothSetting = getBluetoothSetting();
