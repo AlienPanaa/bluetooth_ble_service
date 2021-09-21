@@ -19,6 +19,7 @@ public class BluetoothConnectSetting {
 
     // min second
     private int timeout = 30_000;
+    private boolean isSecureRfcommSocket = true;
 
     private ConnectErrorListener connectErrorListener = (e) -> Log.i(TAG, "Connect error.", e);
 
@@ -54,6 +55,14 @@ public class BluetoothConnectSetting {
 
     public int getTimeout() {
         return timeout;
+    }
+
+    public boolean isSecureRfcommSocket() {
+        return isSecureRfcommSocket;
+    }
+
+    public void setSecureRfcomm(boolean isSecureRfcommSocket) {
+        this.isSecureRfcommSocket = isSecureRfcommSocket;
     }
 
     @NonNull

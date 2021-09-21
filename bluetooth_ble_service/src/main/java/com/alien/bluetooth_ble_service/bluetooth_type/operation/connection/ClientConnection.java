@@ -29,8 +29,12 @@ public class ClientConnection extends Connection {
                 () -> {
                     UUID uuid = setting.getUuid();
 
-                    BluetoothSocket socket = device.createRfcommSocketToServiceRecord(uuid);
-//                    BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+                    BluetoothSocket socket;
+                    if(setting.isSecureRfcommSocket()) {
+                        socket = device.createRfcommSocketToServiceRecord(uuid);
+                    } else {
+                        socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+                    }
 
                     if(!socket.isConnected()) {
                         socket.connect();
