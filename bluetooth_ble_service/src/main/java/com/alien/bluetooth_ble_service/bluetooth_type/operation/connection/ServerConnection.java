@@ -2,11 +2,14 @@ package com.alien.bluetooth_ble_service.bluetooth_type.operation.connection;
 
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.alien.bluetooth_ble_service.bluetooth_type.listener.BluetoothErrorListener;
 import com.alien.bluetooth_ble_service.bluetooth_type.setting.BluetoothConnectSetting;
+
+import java.util.UUID;
 
 public class ServerConnection extends Connection {
     private static final String TAG = ServerConnection.class.getSimpleName();
@@ -19,15 +22,22 @@ public class ServerConnection extends Connection {
 
         connectionAction(
                 () -> {
-                    BluetoothServerSocket mServerSocket =
-                            bluetoothAdapter.listenUsingRfcommWithServiceRecord(name, setting.getUuid());
+                    UUID uuid = setting.getUuid();
 
-                    try (BluetoothSocket socket = mServerSocket.accept(timeout)) {
+                    BluetoothServerSocket mServerSocket =
+                            bluetoothAdapter.listenUsingRfcommWithServiceRecord(name, uuid);
+
+                    try {
+                        BluetoothSocket socket = mServerSocket.accept(timeout);     // ms
+
                         socketListener.onSocket(socket);
+
+                        Log.w(TAG, "Client " + uuid + " is connect success.");
+
                     } catch (Exception e) {
                         e.printStackTrace();
 
-                        setting.getTimeoutListener().onTimeout();   // TODO: 不一定是 Timeout
+                        setting.getConnectErrorListener().onError(e);
                     }
 
                 },

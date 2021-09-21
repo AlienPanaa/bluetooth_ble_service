@@ -24,7 +24,7 @@ public abstract class Connection {
     private static final String TAG = Connection.class.getSimpleName();
     private static final int THREAD_POOL_SIZE = 5;
 
-    private final Map<UUID, ConnectionInfo> socketMap = new HashMap<>();
+    private static final Map<UUID, ConnectionInfo> uuidSocketMap = new HashMap<>();
 
     protected final BluetoothAdapter bluetoothAdapter;
     private final BluetoothErrorListener bluetoothErrorListener;
@@ -49,8 +49,8 @@ public abstract class Connection {
     }
 
     @Nullable
-    public BluetoothReadWriteSocket getBluetoothReadWriteSocket(UUID uuid) {
-        ConnectionInfo connectionInfo = socketMap.get(uuid);
+    public static BluetoothReadWriteSocket getBluetoothReadWriteSocket(UUID uuid) {
+        ConnectionInfo connectionInfo = uuidSocketMap.get(uuid);
         if(connectionInfo == null || connectionInfo.getBluetoothSocket() == null) {
             return null;
         }
@@ -61,7 +61,7 @@ public abstract class Connection {
     public final boolean connectDevice(BluetoothConnectSetting setting) {
         UUID uuid = setting.getUuid();
 
-        if(socketMap.containsKey(uuid) && socketMap.get(uuid) != null) {
+        if(uuidSocketMap.containsKey(uuid) && uuidSocketMap.get(uuid) != null) {
             bluetoothErrorListener.onError(BluetoothErrorListener.ALREADY_CONNECTED, new Exception("UUID already connect:" + uuid));
 
             return false;
@@ -69,7 +69,7 @@ public abstract class Connection {
 
         bluetoothAdapter.cancelDiscovery();
 
-        connect(setting, (socket -> socketMap.put(uuid, new ConnectionInfo(socket))));
+        connect(setting, (socket -> uuidSocketMap.put(uuid, new ConnectionInfo(socket))));
 
         return true;
     }
@@ -77,17 +77,21 @@ public abstract class Connection {
 
     public boolean closeDevice(UUID uuid) {
 
-        ConnectionInfo connectionInfo = socketMap.get(uuid);
+        ConnectionInfo connectionInfo = uuidSocketMap.get(uuid);
 
-        if(!socketMap.containsKey(uuid) || connectionInfo == null || connectionInfo.getBluetoothSocket() == null) {
+        if(!uuidSocketMap.containsKey(uuid) || connectionInfo == null || connectionInfo.getBluetoothSocket() == null) {
             bluetoothErrorListener.onError(BluetoothErrorListener.HAVE_NOT_CONNECTED, new Exception("UUID haven't connect:" + uuid));
 
             return false;
         }
 
-        boolean result = close(connectionInfo.getBluetoothSocket());
+        BluetoothSocket bluetoothSocket = connectionInfo.getBluetoothSocket();
 
-        socketMap.remove(uuid);
+        connectionInfo.getReadWriteSocket().close();
+
+        boolean result = close(bluetoothSocket);
+
+        uuidSocketMap.remove(uuid);
 
         return result;
     }

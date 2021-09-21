@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import com.alien.bluetooth_ble_service.basic_type.setting.ScanSetting;
 import com.alien.bluetooth_ble_service.bluetooth_type.controller.BluetoothController;
 import com.alien.bluetooth_ble_service.basic_type.service.BluetoothBinder;
+import com.alien.bluetooth_ble_service.bluetooth_type.operation.connection.Connection;
 import com.alien.bluetooth_ble_service.bluetooth_type.operation.read_write.ReadResponseListener;
 import com.alien.bluetooth_ble_service.bluetooth_type.setting.BluetoothConnectSetting;
 import com.alien.bluetooth_ble_service.bluetooth_type.setting.BluetoothSetting;
@@ -66,30 +67,6 @@ public class BluetoothServiceBinder extends BluetoothBinder {
         return serverConnection.connectDevice(setting);
     }
 
-    public void serverRead(@NonNull ReadResponseListener readResponseListener) {
-        serverRead(BluetoothConnectSetting.defaultUuid, readResponseListener);
-    }
-
-    public void serverRead(@NonNull UUID uuid, @NonNull ReadResponseListener readResponseListener) {
-        BluetoothReadWriteSocket bluetoothReadWriteSocket = serverConnection.getBluetoothReadWriteSocket(uuid);
-
-        if(bluetoothReadWriteSocket != null) {
-            bluetoothReadWriteSocket.read(readResponseListener);
-        }
-    }
-
-    public void serverWrite(byte[] bytes) {
-        serverWrite(BluetoothConnectSetting.defaultUuid, bytes);
-    }
-
-    public void serverWrite(@NonNull UUID uuid, byte[] bytes) {
-        BluetoothReadWriteSocket bluetoothReadWriteSocket = serverConnection.getBluetoothReadWriteSocket(uuid);
-
-        if(bluetoothReadWriteSocket != null) {
-            bluetoothReadWriteSocket.write(bytes);
-        }
-    }
-
     public synchronized boolean serverCloseDevice() {
         return serverConnection.closeDevice(BluetoothConnectSetting.defaultUuid);
     }
@@ -107,32 +84,37 @@ public class BluetoothServiceBinder extends BluetoothBinder {
         return clientConnection.setDevice(device).connectDevice(setting);
     }
 
-    public void clientRead(@NonNull ReadResponseListener readResponseListener) {
-        clientRead(BluetoothConnectSetting.defaultUuid, readResponseListener);
+    public synchronized boolean clientCloseDevice() {
+        return clientCloseDevice(BluetoothConnectSetting.defaultUuid);
     }
 
-    public void clientRead(@NonNull UUID uuid, @NonNull ReadResponseListener readResponseListener) {
-        BluetoothReadWriteSocket bluetoothReadWriteSocket = clientConnection.getBluetoothReadWriteSocket(uuid);
+    public synchronized boolean clientCloseDevice(@NonNull UUID uuid) {
+        return clientConnection.closeDevice(uuid);
+    }
+
+    // ---------------------------------------------------------------------------------------------- I/O
+    public void read(@NonNull ReadResponseListener readResponseListener) {
+        read(BluetoothConnectSetting.defaultUuid, readResponseListener);
+    }
+
+    public void read(@NonNull UUID uuid, @NonNull ReadResponseListener readResponseListener) {
+        BluetoothReadWriteSocket bluetoothReadWriteSocket = Connection.getBluetoothReadWriteSocket(uuid);
 
         if(bluetoothReadWriteSocket != null) {
             bluetoothReadWriteSocket.read(readResponseListener);
         }
     }
 
-    public void clientWrite(byte[] bytes) {
-        clientWrite(BluetoothConnectSetting.defaultUuid, bytes);
+    public void write(byte[] bytes) {
+        write(BluetoothConnectSetting.defaultUuid, bytes);
     }
 
-    public void clientWrite(@NonNull UUID uuid, byte[] bytes) {
-        BluetoothReadWriteSocket bluetoothReadWriteSocket = serverConnection.getBluetoothReadWriteSocket(uuid);
+    public void write(@NonNull UUID uuid, byte[] bytes) {
+        BluetoothReadWriteSocket bluetoothReadWriteSocket = Connection.getBluetoothReadWriteSocket(uuid);
 
         if(bluetoothReadWriteSocket != null) {
             bluetoothReadWriteSocket.write(bytes);
         }
-    }
-
-    public synchronized boolean clientCloseDevice(@NonNull UUID uuid) {
-        return clientConnection.closeDevice(uuid);
     }
 
 

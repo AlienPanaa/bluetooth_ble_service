@@ -2,9 +2,10 @@ package com.alien.bluetooth_ble_service.bluetooth_type.setting;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.alien.bluetooth_ble_service.bluetooth_type.listener.TimeoutListener;
+import com.alien.bluetooth_ble_service.bluetooth_type.listener.ConnectErrorListener;
 
 import java.util.UUID;
 
@@ -12,14 +13,14 @@ public class BluetoothConnectSetting {
 
     private static final String TAG = BluetoothConnectSetting.class.getSimpleName();
 
-    public static final UUID defaultUuid = UUID.fromString("00000000-0000-1000-8000-00805F9B34FB");
+    public static final UUID defaultUuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     private final String name;
 
     // min second
     private int timeout = 30_000;
 
-    private TimeoutListener timeoutListener = () -> Log.i(TAG, "Time out");
+    private ConnectErrorListener connectErrorListener = (e) -> Log.i(TAG, "Connect error.", e);
 
     private UUID uuid = UUID.randomUUID();
 
@@ -55,11 +56,12 @@ public class BluetoothConnectSetting {
         return timeout;
     }
 
-    public TimeoutListener getTimeoutListener() {
-        return timeoutListener;
+    @NonNull
+    public ConnectErrorListener getConnectErrorListener() {
+        return connectErrorListener;
     }
 
-    public void setTimeoutListener(TimeoutListener timeoutListener) {
-        this.timeoutListener = timeoutListener;
+    public void setConnectErrorListener(ConnectErrorListener connectErrorListener) {
+        this.connectErrorListener = connectErrorListener;
     }
 }

@@ -1,6 +1,5 @@
 package com.alien.bluetooth;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -81,10 +80,13 @@ public class MainActivity extends BluetoothHandleRequest {
     protected void discoverableBluetoothResult(boolean result) {
         super.discoverableBluetoothResult(result);
 
-        boolean b = bluetoothServiceBinder.serverStartBroadcast();
+        bluetoothServiceBinder.serverStartBroadcast();
 
     }
 
+    private final byte[] testData = new byte[] {
+            1, 2, 3, 4, 5, 6, 7, 8, 9
+    };
     private void initView() {
         bluetoothListAdapter = new BluetoothListAdapter();
 
@@ -99,18 +101,21 @@ public class MainActivity extends BluetoothHandleRequest {
         binding.startService.setOnClickListener((v) -> BluetoothController.getInstance().ensureDiscoverable(this, 300));
 
 
-        binding.readService.setOnClickListener(v -> {
-            bluetoothServiceBinder.serverRead((len, cacheBuf) -> Log.i(TAG, "Len: " + len + ", buf: " + Arrays.toString(cacheBuf)));
+        binding.read.setOnClickListener(v -> {
+            bluetoothServiceBinder.read((len, cacheBuf) -> {
+                String msg = "Len: " + len + ", buf: " + Arrays.toString(cacheBuf);
+
+                Log.i(TAG, msg);
+
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            });
         });
 
-        binding.writeService.setOnClickListener(v -> bluetoothServiceBinder.serverWrite(new byte[]{0x11}));
 
-        binding.readService.setOnClickListener(v -> {
-            bluetoothServiceBinder.clientRead((len, cacheBuf) -> Log.i(TAG, "Len: " + len + ", buf: " + Arrays.toString(cacheBuf)));
-        });
+        binding.write.setOnClickListener(v -> bluetoothServiceBinder.write(testData));
 
-        binding.writeClient.setOnClickListener(v -> {
-            bluetoothServiceBinder.clientWrite(new byte[]{0x22});
+        binding.close.setOnClickListener(v -> {
+            bluetoothServiceBinder.serverCloseDevice();
         });
 
         binding.clean.setOnClickListener(v -> bluetoothListAdapter.clean());
