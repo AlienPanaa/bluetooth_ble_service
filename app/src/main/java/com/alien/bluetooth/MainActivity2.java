@@ -93,7 +93,9 @@ public class MainActivity2 extends AppCompatActivity {
 
                         Log.i(TAG, "deviceName: " + deviceName + ", address: " + deviceHardwareAddress);
 
-                        bluetoothListAdapter.addDevice(deviceHardwareAddress);
+                        bluetoothListAdapter.addDevice(bluetoothDevice, v1 -> {
+                            bleServiceBinder.clientConnectDevice(bluetoothDevice);
+                        });
 
                     }));
         });

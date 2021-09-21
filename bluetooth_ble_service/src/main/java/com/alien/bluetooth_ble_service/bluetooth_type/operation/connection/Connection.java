@@ -27,7 +27,7 @@ public abstract class Connection {
     private final Map<UUID, ConnectionInfo> socketMap = new HashMap<>();
 
     protected final BluetoothAdapter bluetoothAdapter;
-    protected final BluetoothErrorListener bluetoothErrorListener;
+    private final BluetoothErrorListener bluetoothErrorListener;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
@@ -58,13 +58,7 @@ public abstract class Connection {
         return connectionInfo.getReadWriteSocket();
     }
 
-    private boolean cancelDiscovery() {
-        return bluetoothAdapter.cancelDiscovery();
-    }
-
     public final boolean connectDevice(BluetoothConnectSetting setting) {
-        boolean result = true;
-
         UUID uuid = setting.getUuid();
 
         if(socketMap.containsKey(uuid) && socketMap.get(uuid) != null) {
@@ -73,15 +67,11 @@ public abstract class Connection {
             return false;
         }
 
-        if(!cancelDiscovery()) {
-            result = false;
-
-            bluetoothErrorListener.onError(BluetoothErrorListener.CLIENT_CONNECT_FAIL, new Exception("Fail with uuid: " + uuid));
-        }
+        bluetoothAdapter.cancelDiscovery();
 
         connect(setting, (socket -> socketMap.put(uuid, new ConnectionInfo(socket))));
 
-        return result;
+        return true;
     }
 
 

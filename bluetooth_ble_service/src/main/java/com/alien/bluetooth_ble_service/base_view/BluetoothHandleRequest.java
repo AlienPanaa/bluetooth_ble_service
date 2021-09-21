@@ -1,11 +1,13 @@
 package com.alien.bluetooth_ble_service.base_view;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,19 +19,31 @@ public class BluetoothHandleRequest extends AppCompatActivity {
 
     private static final String TAG = BluetoothHandleRequest.class.getSimpleName();
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case CommonController.REQUEST_DISCOVERABLE:
+                discoverableBluetoothResult(resultCode == PackageManager.PERMISSION_GRANTED);
+                break;
+        }
+
+    }
+
     @CallSuper
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         String msg = "";
+        boolean isPass = true;
 
         switch (requestCode) {
-
             case CommonController.REQUEST_BLUETOOTH_PERMISSION:
                 msg = getBluetoothPermissionDeniedHint();
 
-                checkPermission(
+                isPass = checkPermission(
                         permissions,
                         grantResults,
                         BluetoothController.REQUEST_BLUETOOTH_PERMISSION
@@ -39,7 +53,7 @@ public class BluetoothHandleRequest extends AppCompatActivity {
             case CommonController.REQUEST_ENABLE_BT:
                 msg = getBluetoothDisEnableHint();
 
-                checkPermission(
+                isPass = checkPermission(
                         permissions,
                         grantResults,
                         BluetoothController.REQUEST_ENABLE_BT
@@ -48,20 +62,23 @@ public class BluetoothHandleRequest extends AppCompatActivity {
 
         }
 
-        if(!msg.isEmpty()) {
+        if(!isPass && !msg.isEmpty()) {
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         }
 
     }
 
 
-    private void checkPermission(@NonNull String[] permissions, @NonNull int[] grantResults, int requestCode) {
+    private boolean checkPermission(@NonNull String[] permissions, @NonNull int[] grantResults, int requestCode) {
+        boolean isAllPass = true;
 
         for(int i = 0; i < grantResults.length; i++) {
 
             int result = grantResults[i];
 
             if(result == PackageManager.PERMISSION_DENIED) {
+                isAllPass = false;
+
                 String permission = permissions[i];
 
                 Log.e(TAG, "PERMISSION_DENIED: " + permission);
@@ -74,6 +91,7 @@ public class BluetoothHandleRequest extends AppCompatActivity {
             }
         }
 
+        return isAllPass;
     }
 
     protected void showTeachDialog(@NonNull String permission, int requestCode) {
@@ -97,6 +115,10 @@ public class BluetoothHandleRequest extends AppCompatActivity {
 
     protected String getBluetoothDisEnableHint() {
         return "Please open bluetooth.";
+    }
+
+    protected void discoverableBluetoothResult(boolean result) {
+        Log.i(TAG, "Request bluetooth discoverable. " + result);
     }
 
 

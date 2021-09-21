@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Size;
 
 
 import com.alien.bluetooth_ble_service.basic_type.contoller.bluetooth_info.LocalBluetoothInfo;
@@ -29,8 +30,15 @@ public abstract class CommonController<T extends CommonSetting>
             Manifest.permission.ACCESS_FINE_LOCATION
     };
 
+    public static final int REQUEST_DISCOVERABLE = 0xA2;
     public static final int REQUEST_ENABLE_BT = 0xA1;
     public static final int REQUEST_BLUETOOTH_PERMISSION = 0xA0;
+
+    public void ensureDiscoverable(@NonNull Activity activity, @Size(min = 1) int secTime) {
+        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, secTime);
+        activity.startActivityForResult(discoverableIntent, REQUEST_DISCOVERABLE);
+    }
 
     @NonNull
     public String[] requestPermission(@NonNull Activity activity) {

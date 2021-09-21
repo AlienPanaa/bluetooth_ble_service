@@ -17,6 +17,7 @@ public class LocalBluetoothInfo {
 
     public LocalBluetoothInfo(@NonNull BluetoothAdapter adapter) {
         this.adapter = adapter;
+
     }
 
     @SuppressLint("HardwareIds")
@@ -48,7 +49,14 @@ public class LocalBluetoothInfo {
         throw new SdkUnSupportException(Build.VERSION_CODES.O);
     }
 
-
+    @NonNull
+    @Override
+    public String toString() {
+        return "Name: " + getName() + "\n" +
+                "Address: " + getAddress() + "\n" +
+                "ScanMode: " + getScanMode() + "\n" +
+                "BondedDevices: " + getBondedDevices();
+    }
 
 }
 

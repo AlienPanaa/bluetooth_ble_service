@@ -13,28 +13,21 @@ public class ServerConnection extends Connection {
 
     @Override
     public void connect(BluetoothConnectSetting setting, SocketListener socketListener) {
-//        BluetoothConnectSetting serverInfo = bluetoothSetting.getServerInfo();
-
-        String name = setting.getName();
+        String name = setting.getName() == null ? bluetoothAdapter.getName() : setting.getName();
         int timeout = setting.getTimeout();
+
 
         connectionAction(
                 () -> {
                     BluetoothServerSocket mServerSocket =
                             bluetoothAdapter.listenUsingRfcommWithServiceRecord(name, setting.getUuid());
 
-//                    while (true) {
-//
-//                        BluetoothSocket socket = mServerSocket.accept(timeout);   // block
-//                        // TODO:
-//
-//                        close(uuid);
-//                    }
-
                     try (BluetoothSocket socket = mServerSocket.accept(timeout)) {
                         socketListener.onSocket(socket);
                     } catch (Exception e) {
-                        bluetoothErrorListener.onError(BluetoothErrorListener.SERVER_CONNECT_FAIL, e);
+                        e.printStackTrace();
+
+                        setting.getTimeoutListener().onTimeout();   // TODO: 不一定是 Timeout
                     }
 
                 },

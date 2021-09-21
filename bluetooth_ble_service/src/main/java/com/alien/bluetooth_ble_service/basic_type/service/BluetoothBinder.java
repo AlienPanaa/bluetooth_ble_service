@@ -15,11 +15,6 @@ import com.alien.bluetooth_ble_service.basic_type.setting.ScanSetting;
 
 public abstract class BluetoothBinder extends Binder {
 
-    @FunctionalInterface
-    private interface MyExtra {
-        void onMyExtra(Intent intent);
-    }
-
     protected final Context context;
     protected final BluetoothAdapter bluetoothAdapter;
 
@@ -31,26 +26,5 @@ public abstract class BluetoothBinder extends Binder {
 
     @NonNull
     public abstract BluetoothAdapter getBluetoothAdapter(@NonNull Context context);
-
-    public void requestDiscoverableDevice(@Size(min = 1L, max = 300L) int secondTime) {
-        sendIntent((Intent intent) -> {
-            intent.setAction(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, secondTime);
-            intent.putExtra(BluetoothAdapter.EXTRA_SCAN_MODE, bluetoothAdapter.getScanMode());
-        });
-    }
-
-    public void listenerScanModeChange() {
-        sendIntent((Intent intent) -> intent.putExtra(BluetoothAdapter.EXTRA_SCAN_MODE, BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
-    }
-
-    private void sendIntent(MyExtra item) {
-        Intent intent = new Intent();
-
-        item.onMyExtra(intent);
-
-        context.startActivity(intent);
-    }
-
 
 }

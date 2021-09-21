@@ -1,7 +1,6 @@
 package com.alien.bluetooth_ble_service.bluetooth_type.operation.read_write;
 
 import android.bluetooth.BluetoothSocket;
-import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -17,20 +16,15 @@ import java.util.concurrent.Executors;
 public class BluetoothReadWriteSocket {
 
     private static final String TAG = BluetoothReadWriteSocket.class.getSimpleName();
-    private static final int CORE_THREAD_SIZE = 2;
 
     private BluetoothSocket socket;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(CORE_THREAD_SIZE);
-
-    public interface MessageConstants {
-        int MESSAGE_READ = 0;
-    }
+    private static final ExecutorService executorService = Executors.newCachedThreadPool();
 
     public BluetoothReadWriteSocket(@NonNull BluetoothSocket socket) {
         this.socket = socket;
     }
 
-    public void read(@NonNull Handler handler) {
+    public void read(@NonNull ReadResponseListener readResponseListener) {
         if(socket == null) {
             return;
         }
@@ -51,11 +45,7 @@ public class BluetoothReadWriteSocket {
                             continue;
                         }
 
-                        handler.obtainMessage(
-                                MessageConstants.MESSAGE_READ,
-                                len,
-                                -1,
-                                cacheBuf).sendToTarget();
+                        readResponseListener.onReadResponse(len, cacheBuf);
 
                     } catch (IOException e) {
                         Log.d(TAG, "Input stream was disconnected", e);
@@ -85,8 +75,6 @@ public class BluetoothReadWriteSocket {
 
             } catch (IOException e) {
                 e.printStackTrace();
-
-                executorService.shutdown();
             }
         });
 

@@ -1,5 +1,6 @@
 package com.alien.bluetooth;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +16,8 @@ import com.alien.bluetooth_ble_service.basic_type.setting.ScanSetting;
 import com.alien.bluetooth_ble_service.bluetooth_type.controller.BluetoothController;
 import com.alien.bluetooth_ble_service.bluetooth_type.service.BluetoothServiceBinder;
 import com.alien.bluetooth_ble_service.bluetooth_type.setting.BluetoothSetting;
+
+import java.util.Arrays;
 
 public class MainActivity extends BluetoothHandleRequest {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -60,7 +63,6 @@ public class MainActivity extends BluetoothHandleRequest {
 
             try {
                 bluetoothServiceBinder = BluetoothController.getInstance().getServiceBinder();
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -75,22 +77,47 @@ public class MainActivity extends BluetoothHandleRequest {
         BluetoothController.getInstance().closeService(this);
     }
 
+    @Override
+    protected void discoverableBluetoothResult(boolean result) {
+        super.discoverableBluetoothResult(result);
+
+        boolean b = bluetoothServiceBinder.serverStartBroadcast();
+
+    }
+
     private void initView() {
         bluetoothListAdapter = new BluetoothListAdapter();
 
         binding.bluetoothList.setLayoutManager(new LinearLayoutManager(this));
         binding.bluetoothList.setAdapter(bluetoothListAdapter);
 
-        binding.startService.setOnClickListener((v) -> {
+        LocalBluetoothInfo localBluetoothInfo = BluetoothController.getInstance().getLocalBluetoothInfo(this);
 
+        Log.i(TAG, "Local Bluetooth Info" + localBluetoothInfo.toString());
+
+
+        binding.startService.setOnClickListener((v) -> BluetoothController.getInstance().ensureDiscoverable(this, 300));
+
+
+        binding.readService.setOnClickListener(v -> {
+            bluetoothServiceBinder.serverRead((len, cacheBuf) -> Log.i(TAG, "Len: " + len + ", buf: " + Arrays.toString(cacheBuf)));
         });
 
-        binding.closeService.setOnClickListener((v) -> {
+        binding.writeService.setOnClickListener(v -> bluetoothServiceBinder.serverWrite(new byte[]{0x11}));
 
+        binding.readService.setOnClickListener(v -> {
+            bluetoothServiceBinder.clientRead((len, cacheBuf) -> Log.i(TAG, "Len: " + len + ", buf: " + Arrays.toString(cacheBuf)));
         });
+
+        binding.writeClient.setOnClickListener(v -> {
+            bluetoothServiceBinder.clientWrite(new byte[]{0x22});
+        });
+
+        binding.clean.setOnClickListener(v -> bluetoothListAdapter.clean());
 
         binding.scan.setOnClickListener((v) -> {
-            bluetoothServiceBinder.searchDevice(new ScanSetting()
+
+            bluetoothServiceBinder.scanDevice(new ScanSetting()
                     .setIgnoreSame(true)
                     .setScanStateListener(isScanning -> Toast.makeText(this, "Is scanning? " + isScanning, Toast.LENGTH_SHORT).show())
                     .setBluetoothDeviceListener(bluetoothDevice -> {
@@ -99,7 +126,7 @@ public class MainActivity extends BluetoothHandleRequest {
 
                         Log.i(TAG, "deviceName: " + deviceName + ", address: " + deviceHardwareAddress);
 
-                        bluetoothListAdapter.addDevice(deviceHardwareAddress);
+                        bluetoothListAdapter.addDevice(bluetoothDevice, v1 -> bluetoothServiceBinder.clientConnectDevice(bluetoothDevice));
                     }));
         });
 
