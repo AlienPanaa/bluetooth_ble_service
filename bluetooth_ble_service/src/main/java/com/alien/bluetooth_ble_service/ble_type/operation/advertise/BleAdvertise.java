@@ -4,17 +4,19 @@ import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
-import android.util.Log;
 
 import com.alien.bluetooth_ble_service.ble_type.bean.AdvertiseInfo;
+import com.alien.bluetooth_ble_service.ble_type.listener.AdvertiseResultListener;
 
 public class BleAdvertise extends AdvertiseCallback {
-    private static final String TAG = BleAdvertise.class.getSimpleName();
-
     private BluetoothLeAdvertiser bluetoothLeAdvertiser;
+
+    private AdvertiseResultListener advertiseResultListener;
 
     public void startAdvertise(BluetoothLeAdvertiser bluetoothLeAdvertiser, AdvertiseInfo advertiseInfo) {
         this.bluetoothLeAdvertiser = bluetoothLeAdvertiser;
+
+        advertiseResultListener = advertiseInfo.getAdvertiseResultListener();
 
         AdvertiseSettings advertiseSettings = advertiseInfo.getAdvertiseSettings();
         AdvertiseData advertiseData = advertiseInfo.getAdvertiseData();
@@ -35,15 +37,15 @@ public class BleAdvertise extends AdvertiseCallback {
 
     @Override
     public void onStartSuccess(AdvertiseSettings settingsInEffect) {
-        Log.i(TAG, "onStartSuccess: " + settingsInEffect.toString());
-
-        // TODO:
+        if(advertiseResultListener != null) {
+            advertiseResultListener.onAdvertiseResult(settingsInEffect);
+        }
     }
 
     @Override
     public void onStartFailure(int errorCode) {
-        Log.i(TAG, "onStartFailure: " + errorCode);
-
-        // TODO:
+        if(advertiseResultListener != null) {
+            advertiseResultListener.onAdvertiseFail(errorCode);
+        }
     }
 }

@@ -16,25 +16,18 @@ import com.alien.bluetooth_ble_service.ble_type.listener.ScanResultListener;
 public class BleSetting extends CommonSetting {
     private static final String TAG = BleSetting.class.getSimpleName();
 
-    private final AdvertiseInfo advertiseInfo;
-
     private final BleErrorListener BLEErrorListener;
 
     private final boolean autoConnect;
 
     BleSetting(@NonNull Builder builder) {
         super(builder);
-        this.advertiseInfo = builder.getAdvertiseInfo();
         this.BLEErrorListener = builder.getBleErrorListener();
         this.autoConnect = builder.isAutoConnect();
     }
 
     public boolean isAutoConnect() {
         return autoConnect;
-    }
-
-    public AdvertiseInfo getAdvertiseInfo() {
-        return advertiseInfo;
     }
 
     public BleErrorListener getBleErrorListener() {
@@ -54,23 +47,12 @@ public class BleSetting extends CommonSetting {
 
 
     public static final class Builder extends CommonSetting.Builder {
-        private AdvertiseInfo advertiseInfo;
-
         private BleErrorListener BleErrorListener;
 
-        private boolean autoConnect;
+        private boolean autoConnect;        // TODO: 移除... 不該放這裡
 
         public Builder setErrorListener(BleErrorListener BLEErrorListener) {
             this.BleErrorListener = BLEErrorListener;
-            return this;
-        }
-
-        public AdvertiseInfo getAdvertiseInfo() {
-            return advertiseInfo;
-        }
-
-        public Builder setAdvertiseInfo(AdvertiseInfo advertiseInfo) {
-            this.advertiseInfo = advertiseInfo;
             return this;
         }
 
@@ -100,10 +82,6 @@ public class BleSetting extends CommonSetting {
         public BleSetting build() {
             if(BleErrorListener == null) {
                 BleErrorListener = (errorCode, e) -> Log.e(TAG, "BluetoothController error: " + errorCode);
-            }
-
-            if(advertiseInfo == null) {
-                advertiseInfo = AdvertiseInfo.getDefault();
             }
 
             return new BleSetting(this);

@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 
 import com.alien.bluetooth_ble_service.basic_type.scan.BluetoothScan;
 import com.alien.bluetooth_ble_service.basic_type.setting.ScanSetting;
+import com.alien.bluetooth_ble_service.ble_type.bean.AdvertiseInfo;
 import com.alien.bluetooth_ble_service.ble_type.controller.BleController;
 import com.alien.bluetooth_ble_service.ble_type.operation.advertise.BleAdvertise;
 import com.alien.bluetooth_ble_service.ble_type.setting.BleScanSetting;
@@ -33,11 +34,6 @@ public class BleServiceBinder extends BluetoothBinder {
     public BleServiceBinder(Context context, BluetoothGattCallback callback) {
         super(context);
 
-        BluetoothAdapter bluetoothAdapter = BleController.getInstance().getBluetoothSetting().getBluetoothAdapter();
-        if(bluetoothAdapter == null) {
-            bluetoothAdapter = BleController.getInstance().getBluetoothSetting().getDefaultBluetoothAdapter(context);
-        }
-
         this.callback = callback;
         this.bleAdvertise = new BleAdvertise();
         this.bleScanner = new BleScanner(bluetoothAdapter);
@@ -56,20 +52,21 @@ public class BleServiceBinder extends BluetoothBinder {
         return bleScanner.startScan(scanSetting);    // TODO:
     }
 
-    public synchronized boolean serverStartAdvertise() {
-        BluetoothAdapter bluetoothAdapter = BleController.getInstance().getBluetoothSetting().getBluetoothAdapter();
+    public synchronized boolean serverStartBroadcast() {
+        return serverStartBroadcast(AdvertiseInfo.getDefault());
+    }
 
+    public synchronized boolean serverStartBroadcast(@NonNull AdvertiseInfo advertiseInfo) {
         BluetoothLeAdvertiser bluetoothLeAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
         if(bluetoothLeAdvertiser == null) {
             return false;
         }
 
-        bleAdvertise.startAdvertise(bluetoothLeAdvertiser,
-                BleController.getInstance().getBluetoothSetting().getAdvertiseInfo());
+        bleAdvertise.startAdvertise(bluetoothLeAdvertiser, advertiseInfo);
         return true;
     }
 
-    public synchronized boolean serverCloseAdvertise() {
+    public synchronized boolean serverCloseBroadcast() {
         return bleAdvertise.stopAdvertise();
     }
 

@@ -48,6 +48,13 @@
                 android:text="Scan"
                 app:layout_constraintTop_toBottomOf="@+id/close_service"/>
 
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/clean"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Scan"
+                app:layout_constraintTop_toBottomOf="@+id/scan"/>
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

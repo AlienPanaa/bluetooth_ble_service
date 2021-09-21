@@ -27,7 +27,6 @@ public class MainActivity2 extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main2);
 
 
-
         boolean hasBluetooth = BleController.getInstance().checkHardware(this);
 
         if(!hasBluetooth) {
@@ -51,7 +50,7 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
     private void initBluetoothSetting() {
-        BleSetting.Builder builder = (BleSetting.Builder) new BleSetting.Builder()
+        BleSetting.Builder builder = new BleSetting.Builder()
                 .setErrorListener((errorCode, e) -> Log.w(TAG, "errorCode: " + errorCode, e));
 
         BleController.getInstance().setBluetoothSetting(builder.build());
@@ -75,10 +74,13 @@ public class MainActivity2 extends AppCompatActivity {
         binding.bluetoothList.setAdapter(bluetoothListAdapter);
 
         binding.startService.setOnClickListener((v) -> {
+            bleServiceBinder.serverStartBroadcast();
         });
 
-        binding.closeService.setOnClickListener((v) -> {
+        binding.closeService.setOnClickListener((v) -> bleServiceBinder.serverCloseBroadcast());
 
+        binding.clean.setOnClickListener(v -> {
+            bluetoothListAdapter.clean();
         });
 
         binding.scan.setOnClickListener((v) -> {
@@ -93,9 +95,7 @@ public class MainActivity2 extends AppCompatActivity {
 
                         Log.i(TAG, "deviceName: " + deviceName + ", address: " + deviceHardwareAddress);
 
-                        bluetoothListAdapter.addDevice(bluetoothDevice, v1 -> {
-                            bleServiceBinder.clientConnectDevice(bluetoothDevice);
-                        });
+                        bluetoothListAdapter.addDevice(bluetoothDevice, v1 -> bleServiceBinder.clientConnectDevice(bluetoothDevice));
 
                     }));
         });
