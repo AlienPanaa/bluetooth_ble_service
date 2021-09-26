@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Intent;
 import android.os.IBinder;
@@ -11,6 +12,11 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 import com.alien.bluetooth_ble_service.basic_type.service.BluetoothCommonService;
+import com.alien.bluetooth_ble_service.ble_type.bean.ServicePackageInfo;
+import com.alien.bluetooth_ble_service.tools.UuidAdapter;
+
+import java.util.List;
+import java.util.UUID;
 
 
 public class BleService extends BluetoothCommonService {
@@ -19,7 +25,7 @@ public class BleService extends BluetoothCommonService {
 
     private final BluetoothGattCallback callback = new BluetoothGattCallback() {
 
-        private boolean baseGattDecide(int status) {
+        private boolean baseGattCheck(int status) {
             boolean result = false;
 
             switch (status) {
@@ -30,12 +36,16 @@ public class BleService extends BluetoothCommonService {
                     break;
             }
 
+            if(!result) {
+                // TODO: 好像有嘗試重新連接
+            }
+
             return result;
         }
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            if(!baseGattDecide(status)) {
+            if(!baseGattCheck(status)) {
                 return;
             }
 
@@ -45,6 +55,8 @@ public class BleService extends BluetoothCommonService {
                 case BluetoothProfile.STATE_DISCONNECTING:
                     break;
                 case BluetoothProfile.STATE_CONNECTED:
+                    boolean isSuccess = gatt.discoverServices();
+
                     break;
                 case BluetoothProfile.STATE_CONNECTING:
                     break;
@@ -53,7 +65,18 @@ public class BleService extends BluetoothCommonService {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            baseGattDecide(status);
+            if(!baseGattCheck(status)) {
+                return;
+            }
+
+            List<BluetoothGattService> services = gatt.getServices();
+
+            for(BluetoothGattService service : services) {
+                byte[] bytesFromUUID = UuidAdapter.getBytesFromUUID(service.getUuid());
+
+                new ServicePackageInfo(bytesFromUUID);
+            }
+
         }
 
         @Override
