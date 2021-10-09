@@ -79,9 +79,7 @@ public class MainActivity2 extends AppCompatActivity {
 
         binding.closeService.setOnClickListener((v) -> bleServiceBinder.closeBroadcast());
 
-        binding.clean.setOnClickListener(v -> {
-            bluetoothListAdapter.clean();
-        });
+        binding.clean.setOnClickListener(v -> bluetoothListAdapter.clean());
 
         binding.scan.setOnClickListener((v) -> {
             bleServiceBinder.searchDevice(new BleScanSetting()

@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -23,17 +24,18 @@ import com.alien.bluetooth_ble_service.basic_type.service.BluetoothBinder;
 
 public class BleServiceBinder extends BluetoothBinder {
 
-    private final BluetoothGattCallback callback;
+    private static final String TAG = BleServiceBinder.class.getSimpleName();
+
+    private final GattCallback callback = new GattCallback(action -> Log.e(TAG, "onGattFail: " + action));
 
     private BluetoothGatt bluetoothGatt;
 
     private final BleAdvertise bleAdvertise;
     private final BleScanner bleScanner;
 
-    public BleServiceBinder(Context context, BluetoothGattCallback callback) {
+    public BleServiceBinder(Context context) {
         super(context);
 
-        this.callback = callback;
         this.bleAdvertise = new BleAdvertise();
         this.bleScanner = new BleScanner(bluetoothAdapter, this::clientConnect);
     }
@@ -76,6 +78,11 @@ public class BleServiceBinder extends BluetoothBinder {
         bluetoothGatt = device.connectGatt(context, autoConnect, callback);
 
         return bluetoothGatt != null;
+    }
+
+    public BleServiceBinder setGattResultListener(@NonNull GattResultListener listener) {
+        callback.setGattResultListener(listener);
+        return this;
     }
 
     public synchronized boolean clientClose() {

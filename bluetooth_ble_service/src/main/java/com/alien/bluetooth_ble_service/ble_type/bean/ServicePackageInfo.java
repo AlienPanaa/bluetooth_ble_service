@@ -1,29 +1,41 @@
 package com.alien.bluetooth_ble_service.ble_type.bean;
 
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.alien.bluetooth_ble_service.tools.UuidAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class ServicePackageInfo {
     private static final int AD_MAX_SIZE = 31;
 
+    private final BluetoothGattService service;
     private final byte[] rawData;
     private final UUID rawUuid;
+    private final List<CharacteristicPackageInfo> characteristicPackageInfoList;
 
     private ServiceInfo[] serviceInfo;
 
-    public ServicePackageInfo(@NonNull UUID uuid) {
-        this.rawUuid = uuid;
-        this.rawData = UuidAdapter.getBytesFromUUID(uuid);
+    public ServicePackageInfo(@NonNull BluetoothGattService service) {
+        this.service = service;
+        this.rawUuid = service.getUuid();
+        this.rawData = UuidAdapter.getBytesFromUUID(service.getUuid());
 
-        analyses();
+        analysesService();
+
+        characteristicPackageInfoList = new ArrayList<>(service.getCharacteristics().size());
+        for(BluetoothGattCharacteristic chr : service.getCharacteristics()) {
+            characteristicPackageInfoList.add(new CharacteristicPackageInfo(chr));
+        }
     }
 
-    private void analyses() {
+    private void analysesService() {
         ArrayList<ServiceInfo> info = new ArrayList<>();
 
         try {
@@ -71,8 +83,19 @@ public class ServicePackageInfo {
         return rawData;
     }
 
+    @NonNull
     public UUID getRawUuid() {
         return rawUuid;
+    }
+
+    @NonNull
+    public BluetoothGattService getService() {
+        return service;
+    }
+
+    @NonNull
+    public List<CharacteristicPackageInfo> getCharacteristicPackageInfoList() {
+        return characteristicPackageInfoList;
     }
 
     public enum AdType {
