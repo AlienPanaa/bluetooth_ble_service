@@ -1,12 +1,15 @@
 package com.alien.bluetooth_ble_service.ble_type.operation.scan;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 
+
+import androidx.annotation.NonNull;
 
 import com.alien.bluetooth_ble_service.basic_type.scan.BluetoothScan;
 import com.alien.bluetooth_ble_service.basic_type.setting.ScanSetting;
@@ -19,8 +22,17 @@ public class BleScanner extends BluetoothScan<BleScanSetting> {
 
     private static final String TAG = BleScanner.class.getSimpleName();
 
-    public BleScanner(BluetoothAdapter bluetoothAdapter) {
+    @FunctionalInterface
+    public interface ConnectAction {
+        boolean onConnect(BluetoothDevice device);
+    }
+
+    private final ConnectAction connectAction;
+
+    public BleScanner(@NonNull BluetoothAdapter bluetoothAdapter, @NonNull ConnectAction connectAction) {
         super(bluetoothAdapter);
+
+        this.connectAction = connectAction;
     }
 
     private BleScanSetting scanSetting;
@@ -31,6 +43,17 @@ public class BleScanner extends BluetoothScan<BleScanSetting> {
                 return;
             }
             scanSetting.getScanResultListener().OnScanResult(result, scanSetting.getBluetoothDeviceListener());
+
+            String connectAddress = scanSetting.getConnectAddress();
+            BluetoothDevice device = result.getDevice();
+            if(connectAddress == null || device == null) {
+                return;
+            }
+
+            if(connectAddress.equals(device.getAddress()) && stopScan()) {
+                boolean connectResult = connectAction.onConnect(device);
+                scanSetting.getConnectedResult().onResult(connectResult);
+            }
         }
 
         @Override
@@ -82,9 +105,7 @@ public class BleScanner extends BluetoothScan<BleScanSetting> {
     }
 
     @Override
-    protected boolean stopScanAction(BluetoothAdapter bluetoothAdapter, BleScanSetting scanSetting) {
-        this.scanSetting = scanSetting;
-
+    protected boolean stopScanAction(BluetoothAdapter bluetoothAdapter) {
         boolean result;
 
         BluetoothLeScanner bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();

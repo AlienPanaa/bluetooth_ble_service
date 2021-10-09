@@ -18,7 +18,7 @@ public class BluetoothScanner extends BluetoothScan<ScanSetting> {
     }
 
     @Override
-    protected boolean stopScanAction(BluetoothAdapter bluetoothAdapter, ScanSetting scanSetting) {
+    protected boolean stopScanAction(BluetoothAdapter bluetoothAdapter) {
         return bluetoothAdapter.cancelDiscovery();
     }
 

@@ -12,9 +12,11 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 import com.alien.bluetooth_ble_service.basic_type.service.BluetoothCommonService;
+import com.alien.bluetooth_ble_service.ble_type.bean.CharacteristicPackageInfo;
 import com.alien.bluetooth_ble_service.ble_type.bean.ServicePackageInfo;
 import com.alien.bluetooth_ble_service.tools.UuidAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,62 +27,50 @@ public class BleService extends BluetoothCommonService {
 
     private final BluetoothGattCallback callback = new BluetoothGattCallback() {
 
-        private boolean baseGattCheck(int status) {
-            boolean result = false;
-
-            switch (status) {
-                case BluetoothProfile.STATE_DISCONNECTED:
-                    result = true;
-                    break;
-                case BluetoothProfile.STATE_DISCONNECTING:
-                    break;
-            }
-
-            if(!result) {
-                // TODO: 好像有嘗試重新連接
-            }
-
-            return result;
-        }
-
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            if(!baseGattCheck(status)) {
-                return;
-            }
 
             switch (newState) {
+                case BluetoothProfile.STATE_CONNECTING:
                 case BluetoothProfile.STATE_DISCONNECTED:
-                    break;
                 case BluetoothProfile.STATE_DISCONNECTING:
                     break;
+
                 case BluetoothProfile.STATE_CONNECTED:
                     boolean isSuccess = gatt.discoverServices();
-
-                    break;
-                case BluetoothProfile.STATE_CONNECTING:
-                    break;
             }
         }
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            if(!baseGattCheck(status)) {
+            // TODO: 判斷 status 狀態
+
+            List<BluetoothGattService> services = gatt.getServices();
+            List<ServicePackageInfo> info = new ArrayList<>(services.size());
+
+            for(BluetoothGattService service : services) {
+                info.add(new ServicePackageInfo(service.getUuid()));
+
+                initCharacteristics(service.getCharacteristics());
+            }
+            // TODO: 回調  整理好的資料
+
+        }
+
+        private void initCharacteristics(List<BluetoothGattCharacteristic> characteristicList) {
+            if(characteristicList == null || characteristicList.isEmpty()) {
                 return;
             }
 
-            List<BluetoothGattService> services = gatt.getServices();
-
-            for(BluetoothGattService service : services) {
-                byte[] bytesFromUUID = UuidAdapter.getBytesFromUUID(service.getUuid());
-
-                new ServicePackageInfo(bytesFromUUID);
+            List<CharacteristicPackageInfo> info = new ArrayList<>(characteristicList.size());
+            for(BluetoothGattCharacteristic characteristic: characteristicList) {
+                info.add(new CharacteristicPackageInfo(characteristic));
             }
-
         }
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+
         }
 
         @Override

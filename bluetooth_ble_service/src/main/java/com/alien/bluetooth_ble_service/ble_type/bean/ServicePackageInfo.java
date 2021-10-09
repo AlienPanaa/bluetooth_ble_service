@@ -3,22 +3,27 @@ package com.alien.bluetooth_ble_service.ble_type.bean;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.alien.bluetooth_ble_service.tools.UuidAdapter;
+
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class ServicePackageInfo {
     private static final int AD_MAX_SIZE = 31;
 
     private final byte[] rawData;
+    private final UUID rawUuid;
 
     private ServiceInfo[] serviceInfo;
 
-    public ServicePackageInfo(@NonNull byte[] rawData) {
-        this.rawData = rawData;
+    public ServicePackageInfo(@NonNull UUID uuid) {
+        this.rawUuid = uuid;
+        this.rawData = UuidAdapter.getBytesFromUUID(uuid);
 
         analyses();
     }
 
-    private synchronized void analyses() {
+    private void analyses() {
         ArrayList<ServiceInfo> info = new ArrayList<>();
 
         try {
@@ -64,6 +69,10 @@ public class ServicePackageInfo {
     @NonNull
     public byte[] getRawData() {
         return rawData;
+    }
+
+    public UUID getRawUuid() {
+        return rawUuid;
     }
 
     public enum AdType {

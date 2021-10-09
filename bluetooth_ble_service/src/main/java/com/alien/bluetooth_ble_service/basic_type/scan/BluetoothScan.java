@@ -21,7 +21,7 @@ public abstract class BluetoothScan<T extends ScanSetting> {
     public final boolean startScan(T scanSetting) {
         boolean result;
 
-        if(bluetoothAdapter.isDiscovering() && !stopScanAction(bluetoothAdapter, scanSetting)) {
+        if(bluetoothAdapter.isDiscovering() && !stopScanAction(bluetoothAdapter)) {
             return false;
 
         }
@@ -35,7 +35,7 @@ public abstract class BluetoothScan<T extends ScanSetting> {
 
             @Override
             public void onFinish() {
-                stopScanAction(bluetoothAdapter, scanSetting);
+                stopScanAction(bluetoothAdapter);
 
                 scanFinishAction(scanSetting);
 
@@ -49,10 +49,14 @@ public abstract class BluetoothScan<T extends ScanSetting> {
         return result;
     }
 
+    public final boolean stopScan() {
+        return stopScanAction(bluetoothAdapter);
+    }
+
     protected void scanFinishAction(ScanSetting scanSetting) { }
 
     protected abstract boolean startScanAction(BluetoothAdapter bluetoothAdapter, T scanSetting);
 
-    protected abstract boolean stopScanAction(BluetoothAdapter bluetoothAdapter, T scanSetting);
+    protected abstract boolean stopScanAction(BluetoothAdapter bluetoothAdapter);
 
 }

@@ -22,10 +22,6 @@ public class AdvertiseInfo {
 
     private AdvertiseResultListener advertiseResultListener = advertiseSettings -> Log.w(TAG, advertiseSettings.toString());
 
-    public AdvertiseData getScanResponse() {
-        return scanResponse;
-    }
-
     @NonNull
     public AdvertiseResultListener getAdvertiseResultListener() {
         return advertiseResultListener;
@@ -35,8 +31,13 @@ public class AdvertiseInfo {
         this.advertiseResultListener = advertiseResultListener;
     }
 
+    // Handler setting -----------------------------------------------------------------------------------
     public void setScanResponse(AdvertiseData scanResponse) {
         this.scanResponse = scanResponse;
+    }
+
+    public AdvertiseData getScanResponse() {
+        return scanResponse;
     }
 
     public AdvertiseData getAdvertiseData() {
@@ -63,12 +64,12 @@ public class AdvertiseInfo {
                 .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
                 .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
                 .setConnectable(true)
-                .setTimeout(20_000)
+                .setTimeout(60_000) // unit: ms, max is 180_000ms, 0 is unlimited time
                 .build();
 
         AdvertiseData mAdvData = new AdvertiseData.Builder()
                 .setIncludeTxPowerLevel(true)
-                .setIncludeDeviceName(true)
+//                .setIncludeDeviceName(true)
                 .addServiceUuid(DEFAULT_UUID)
 //                .addManufacturerData(65535, androidId)
                 .build();

@@ -74,20 +74,19 @@ public class MainActivity2 extends AppCompatActivity {
         binding.bluetoothList.setAdapter(bluetoothListAdapter);
 
         binding.startService.setOnClickListener((v) -> {
-            bleServiceBinder.serverStartBroadcast();
+            bleServiceBinder.startBroadcast();
         });
 
-        binding.closeService.setOnClickListener((v) -> bleServiceBinder.serverCloseBroadcast());
+        binding.closeService.setOnClickListener((v) -> bleServiceBinder.closeBroadcast());
 
         binding.clean.setOnClickListener(v -> {
             bluetoothListAdapter.clean();
         });
 
         binding.scan.setOnClickListener((v) -> {
-            bleServiceBinder.searchDevice((BleScanSetting) new BleScanSetting()
+            bleServiceBinder.searchDevice(new BleScanSetting()
                     .setIgnoreSame(true)
-                    .setScanStateListener((isScanning) ->
-                            Toast.makeText(this, "Is scanning? " + isScanning, Toast.LENGTH_SHORT).show())
+                    .setScanStateListener((isScanning) -> Toast.makeText(this, "Is scanning? " + isScanning, Toast.LENGTH_SHORT).show())
                     .setBluetoothDeviceListener((bluetoothDevice) -> {
 
                         String deviceName = bluetoothDevice.getName();
@@ -95,9 +94,16 @@ public class MainActivity2 extends AppCompatActivity {
 
                         Log.i(TAG, "deviceName: " + deviceName + ", address: " + deviceHardwareAddress);
 
-                        bluetoothListAdapter.addDevice(bluetoothDevice, v1 -> bleServiceBinder.clientConnectDevice(bluetoothDevice));
+                        bluetoothListAdapter.addDevice(bluetoothDevice, v1 -> {
+                            bleServiceBinder.clientConnect(bluetoothDevice);
+                        });
 
-                    }));
+                    })
+//                    .setConnectAddress("", isConnected -> {
+//
+//                    })
+            );
+
         });
 
     }
