@@ -73,9 +73,7 @@ public class MainActivity2 extends AppCompatActivity {
         binding.bluetoothList.setLayoutManager(new LinearLayoutManager(this));
         binding.bluetoothList.setAdapter(bluetoothListAdapter);
 
-        binding.startService.setOnClickListener((v) -> {
-            bleServiceBinder.startBroadcast();
-        });
+        binding.startService.setOnClickListener((v) -> bleServiceBinder.startBroadcast());
 
         binding.closeService.setOnClickListener((v) -> bleServiceBinder.closeBroadcast());
 
@@ -101,6 +99,15 @@ public class MainActivity2 extends AppCompatActivity {
 //
 //                    })
             );
+
+            bleServiceBinder.getGattController()
+                    .readRssi(rssi -> {
+
+                    })
+                    .setGattExceptionListener((isResponse, action, e) -> {
+
+                    })
+            ;
 
         });
 

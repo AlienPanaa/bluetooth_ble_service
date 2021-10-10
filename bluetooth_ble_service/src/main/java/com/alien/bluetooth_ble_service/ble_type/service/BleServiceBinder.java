@@ -4,29 +4,27 @@ package com.alien.bluetooth_ble_service.ble_type.service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.alien.bluetooth_ble_service.basic_type.service.BluetoothBinder;
 import com.alien.bluetooth_ble_service.basic_type.setting.ScanSetting;
 import com.alien.bluetooth_ble_service.ble_type.bean.AdvertiseInfo;
 import com.alien.bluetooth_ble_service.ble_type.controller.BleController;
+import com.alien.bluetooth_ble_service.ble_type.listener.BleErrorListener;
 import com.alien.bluetooth_ble_service.ble_type.operation.advertise.BleAdvertise;
+import com.alien.bluetooth_ble_service.ble_type.operation.scan.BleScanner;
 import com.alien.bluetooth_ble_service.ble_type.setting.BleScanSetting;
 import com.alien.bluetooth_ble_service.ble_type.setting.BleSetting;
-import com.alien.bluetooth_ble_service.ble_type.listener.BleErrorListener;
-import com.alien.bluetooth_ble_service.ble_type.operation.scan.BleScanner;
-import com.alien.bluetooth_ble_service.basic_type.service.BluetoothBinder;
 
 
 public class BleServiceBinder extends BluetoothBinder {
 
     private static final String TAG = BleServiceBinder.class.getSimpleName();
 
-    private final GattCallback callback = new GattCallback(action -> Log.e(TAG, "onGattFail: " + action));
+    private final GattCallback callback = new GattCallback();
 
     private BluetoothGatt bluetoothGatt;
 
@@ -80,9 +78,9 @@ public class BleServiceBinder extends BluetoothBinder {
         return bluetoothGatt != null;
     }
 
-    public BleServiceBinder setGattResultListener(@NonNull GattResultListener listener) {
-        callback.setGattResultListener(listener);
-        return this;
+    //TODO: 可能還沒有 bluetoothGatt
+    public GattController getGattController() {
+        return new GattController(callback, bluetoothGatt);
     }
 
     public synchronized boolean clientClose() {
@@ -91,6 +89,7 @@ public class BleServiceBinder extends BluetoothBinder {
             return false;
         }
         bluetoothGatt.disconnect();
+        bluetoothGatt.close();
         return true;
     }
 
