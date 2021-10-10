@@ -95,9 +95,15 @@ public class MainActivity2 extends AppCompatActivity {
                         });
 
                     })
-//                    .setConnectAddress("", isConnected -> {
-//
-//                    })
+                    .setConnectAddress("", gattController -> {
+                        if(gattController == null) {
+                            return;
+                        }
+
+                        gattController.readRssi(rssi -> {
+
+                        });
+                    })
             );
 
             bleServiceBinder.getGattController()

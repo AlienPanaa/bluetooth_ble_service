@@ -70,16 +70,21 @@ public class BleServiceBinder extends BluetoothBinder {
         return bleAdvertise.stopAdvertise();
     }
 
-    public synchronized boolean clientConnect(BluetoothDevice device) {
+    public synchronized GattController clientConnect(BluetoothDevice device) {
         boolean autoConnect = BleController.getInstance().getBluetoothSetting().isAutoConnect();
 
         bluetoothGatt = device.connectGatt(context, autoConnect, callback);
 
-        return bluetoothGatt != null;
+        if(bluetoothGatt != null) {
+            return getGattController();
+        }
+
+        return null;
     }
 
-    //TODO: 可能還沒有 bluetoothGatt
     public GattController getGattController() {
+        assert bluetoothGatt != null;
+
         return new GattController(callback, bluetoothGatt);
     }
 

@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import com.alien.bluetooth_ble_service.basic_type.scan.BluetoothScan;
 import com.alien.bluetooth_ble_service.basic_type.setting.ScanSetting;
 import com.alien.bluetooth_ble_service.ble_type.bean.ScanInfo;
+import com.alien.bluetooth_ble_service.ble_type.service.GattController;
 import com.alien.bluetooth_ble_service.ble_type.setting.BleScanSetting;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class BleScanner extends BluetoothScan<BleScanSetting> {
 
     @FunctionalInterface
     public interface ConnectAction {
-        boolean onConnect(BluetoothDevice device);
+        GattController onConnect(BluetoothDevice device);
     }
 
     private final ConnectAction connectAction;
@@ -51,8 +52,7 @@ public class BleScanner extends BluetoothScan<BleScanSetting> {
             }
 
             if(connectAddress.equals(device.getAddress()) && stopScan()) {
-                boolean connectResult = connectAction.onConnect(device);
-                scanSetting.getConnectedResult().onResult(connectResult);
+                scanSetting.getConnectedResult().onResult(connectAction.onConnect(device));
             }
         }
 

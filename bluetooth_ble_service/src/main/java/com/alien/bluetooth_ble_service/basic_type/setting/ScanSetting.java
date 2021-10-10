@@ -7,9 +7,7 @@ import androidx.annotation.NonNull;
 import com.alien.bluetooth_ble_service.basic_type.listener.BluetoothDeviceListener;
 import com.alien.bluetooth_ble_service.basic_type.listener.Result;
 import com.alien.bluetooth_ble_service.basic_type.listener.ScanStateListener;
-
-import java.util.UUID;
-import java.util.function.Consumer;
+import com.alien.bluetooth_ble_service.ble_type.service.GattController;
 
 public class ScanSetting {
     private static final String TAG = ScanSetting.class.getSimpleName();
@@ -17,7 +15,7 @@ public class ScanSetting {
     private boolean isIgnoreSame = true;
     private long scanTime = 12_000;
     private String connectAddress;
-    private Result<Boolean> connectedResult;
+    private Result<GattController> connectedResult;
 
     private BluetoothDeviceListener bluetoothDeviceListener = device -> Log.i(TAG, device.toString());
     private ScanStateListener scanStateListener = isScanning -> Log.i(TAG, "Is scanning: " + isScanning);
@@ -54,13 +52,13 @@ public class ScanSetting {
         return connectAddress;
     }
 
-    public ScanSetting setConnectAddress(@NonNull String connectAddress, @NonNull Result<Boolean> connectedResult) {
+    public ScanSetting setConnectAddress(@NonNull String connectAddress, @NonNull Result<GattController> connectedResult) {
         this.connectAddress = connectAddress;
         this.connectedResult = connectedResult;
         return this;
     }
 
-    public Result<Boolean> getConnectedResult() {
+    public Result<GattController> getConnectedResult() {
         return connectedResult;
     }
 
