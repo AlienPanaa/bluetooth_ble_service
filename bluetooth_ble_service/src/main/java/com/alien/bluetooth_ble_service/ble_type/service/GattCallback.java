@@ -4,13 +4,13 @@ import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.ConnectStat
 import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.ConnectStateChangeListener.ConnectionState.CONNECTING;
 import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.ConnectStateChangeListener.ConnectionState.DISCONNECTED;
 import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.ConnectStateChangeListener.ConnectionState.DISCONNECTING;
-import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.ConnectStateChangeListener.ConnectionState.DISCOVERING_SERVICES;
-import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.ConnectStateChangeListener.ConnectionState.DISCOVER_SERVICES_FAIL;
+import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.ConnectStateChangeListener.ConnectionState.DISCOVER_SERVICES;
 import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.GattExceptionListener.GattAction.CHARACTERISTIC_READ;
 import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.GattExceptionListener.GattAction.CHARACTERISTIC_WRITE;
 import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.GattExceptionListener.GattAction.CONNECTION;
 import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.GattExceptionListener.GattAction.DESCRIPTOR_READ;
 import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.GattExceptionListener.GattAction.DESCRIPTOR_WRITE;
+import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.GattExceptionListener.GattAction.DISCOVER_SERVICES_FAIL;
 import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.GattExceptionListener.GattAction.EXE_RELIABLE_WRITE;
 import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.GattExceptionListener.GattAction.MTU_CHANGED;
 import static com.alien.bluetooth_ble_service.ble_type.listener.gatt.GattExceptionListener.GattAction.PHY_READ;
@@ -38,63 +38,100 @@ import com.alien.bluetooth_ble_service.ble_type.listener.gatt.ReliableWriteCompl
 import com.alien.bluetooth_ble_service.ble_type.listener.gatt.ServicesDiscoveredListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 final class GattCallback extends BluetoothGattCallback {
 
-    private ConnectStateChangeListener connectStateChangeListener;
-    private ServicesDiscoveredListener servicesDiscoveredListener;
-    private CharacteristicDataListener characteristicDataListener;
-    private DescriptorDataListener descriptorDataListener;
-    private ReliableWriteCompletedListener reliableWriteCompletedListener;
-    private ReadRemoteRssiListener readRemoteRssiListener;
-    private MtuChangedListener mtuChangedListener;
-    private PhyDataListener phyDataListener;
+    private final Map<Thread, ConnectStateChangeListener> connectStateChangeListenerMap = new HashMap<>();
+    private final Map<Thread, ServicesDiscoveredListener> servicesDiscoveredListenerMap = new HashMap<>();
+    private final Map<Thread, CharacteristicDataListener> characteristicDataListenerMap = new HashMap<>();
+    private final Map<Thread, DescriptorDataListener> descriptorDataListenerMap = new HashMap<>();
+    private final Map<Thread, ReliableWriteCompletedListener> reliableWriteCompletedListenerMap = new HashMap<>();
+    private final Map<Thread, ReadRemoteRssiListener> readRemoteRssiListenerMap = new HashMap<>();
+    private final Map<Thread, MtuChangedListener> mtuChangedListenerMap = new HashMap<>();
+    private final Map<Thread, PhyDataListener> phyDataListenerMap = new HashMap<>();
 
-    private GattExceptionListener gattExceptionListener;
+    private final Map<Thread, GattExceptionListener> gattExceptionListenerMap = new HashMap<>();
 
-    public void setCharacteristicDataListener(CharacteristicDataListener characteristicDataListener) {
-        this.characteristicDataListener = characteristicDataListener;
+    public synchronized void setCharacteristicDataListener(CharacteristicDataListener listener) {
+        Thread thread = Thread.currentThread();
+        if(listener == null || characteristicDataListenerMap.containsKey(thread)) {
+            return;
+        }
+        characteristicDataListenerMap.put(thread, listener);
     }
 
-    public void setConnectStateChangeListener(ConnectStateChangeListener connectStateChangeListener) {
-        this.connectStateChangeListener = connectStateChangeListener;
+    public synchronized void setConnectStateChangeListener(ConnectStateChangeListener listener) {
+        Thread thread = Thread.currentThread();
+        if(listener == null || connectStateChangeListenerMap.containsKey(thread)) {
+            return;
+        }
+        connectStateChangeListenerMap.put(thread, listener);
     }
 
-    public void setDescriptorDataListener(DescriptorDataListener descriptorDataListener) {
-        this.descriptorDataListener = descriptorDataListener;
+    public synchronized void setDescriptorDataListener(DescriptorDataListener listener) {
+        Thread thread = Thread.currentThread();
+        if(listener == null || descriptorDataListenerMap.containsKey(thread)) {
+            return;
+        }
+        descriptorDataListenerMap.put(thread, listener);
     }
 
-    public void setGattExceptionListener(GattExceptionListener gattExceptionListener) {
-        this.gattExceptionListener = gattExceptionListener;
+    public synchronized void setGattExceptionListener(GattExceptionListener listener) {
+        Thread thread = Thread.currentThread();
+        if(listener == null || gattExceptionListenerMap.containsKey(thread)) {
+            return;
+        }
+        gattExceptionListenerMap.put(thread, listener);
     }
 
-    public void setMtuChangedListener(MtuChangedListener mtuChangedListener) {
-        this.mtuChangedListener = mtuChangedListener;
+    public synchronized void setMtuChangedListener(MtuChangedListener listener) {
+        Thread thread = Thread.currentThread();
+        if(listener == null || mtuChangedListenerMap.containsKey(thread)) {
+            return;
+        }
+        mtuChangedListenerMap.put(thread, listener);
     }
 
-    public void setPhyDataListener(PhyDataListener phyDataListener) {
-        this.phyDataListener = phyDataListener;
+    public synchronized void setPhyDataListener(PhyDataListener listener) {
+        Thread thread = Thread.currentThread();
+        if(listener == null || phyDataListenerMap.containsKey(thread)) {
+            return;
+        }
+        phyDataListenerMap.put(thread, listener);
     }
 
-    public void setReadRemoteRssiListener(ReadRemoteRssiListener readRemoteRssiListener) {
-        this.readRemoteRssiListener = readRemoteRssiListener;
+    public synchronized void setReadRemoteRssiListener(ReadRemoteRssiListener listener) {
+        Thread thread = Thread.currentThread();
+        if(listener == null || readRemoteRssiListenerMap.containsKey(thread)) {
+            return;
+        }
+        readRemoteRssiListenerMap.put(thread, listener);
     }
 
-    public void setReliableWriteCompletedListener(ReliableWriteCompletedListener reliableWriteCompletedListener) {
-        this.reliableWriteCompletedListener = reliableWriteCompletedListener;
+    public synchronized void setReliableWriteCompletedListener(ReliableWriteCompletedListener listener) {
+        Thread thread = Thread.currentThread();
+        if(listener == null || reliableWriteCompletedListenerMap.containsKey(thread)) {
+            return;
+        }
+        reliableWriteCompletedListenerMap.put(thread, listener);
     }
 
-    public void setServicesDiscoveredListener(ServicesDiscoveredListener servicesDiscoveredListener) {
-        this.servicesDiscoveredListener = servicesDiscoveredListener;
+    public synchronized void setServicesDiscoveredListener(ServicesDiscoveredListener listener) {
+        Thread thread = Thread.currentThread();
+        if(listener == null || servicesDiscoveredListenerMap.containsKey(thread)) {
+            return;
+        }
+        servicesDiscoveredListenerMap.put(thread, listener);
     }
 
     public void fail(boolean isResponse, GattExceptionListener.GattAction action) {
-        if(gattExceptionListener == null) {
-            return;
+        for(GattExceptionListener listener : gattExceptionListenerMap.values()) {
+            listener.onGattException(isResponse, action);
         }
-        gattExceptionListener.onGattException(isResponse, action);
     }
 
     private void fail(GattExceptionListener.GattAction action) {
@@ -108,32 +145,45 @@ final class GattCallback extends BluetoothGattCallback {
             return;
         }
 
-        if(connectStateChangeListener == null) {
-            return;
-        }
+        ConnectStateChangeListener.ConnectionState state;
 
         switch (newState) {
             case BluetoothProfile.STATE_CONNECTING:
-                connectStateChangeListener.onConnectionStateChange(CONNECTING);
+                state = CONNECTING;
                 break;
 
             case BluetoothProfile.STATE_CONNECTED:
-                connectStateChangeListener.onConnectionStateChange(CONNECTED);
-
-                if(!gatt.discoverServices()) {
-                    connectStateChangeListener.onConnectionStateChange(DISCOVER_SERVICES_FAIL);
-                } else {
-                    connectStateChangeListener.onConnectionStateChange(DISCOVERING_SERVICES);
-                }
+                state = CONNECTED;
                 break;
 
             case BluetoothProfile.STATE_DISCONNECTED:
-                connectStateChangeListener.onConnectionStateChange(DISCONNECTED);
+                state = DISCONNECTED;
                 break;
 
             case BluetoothProfile.STATE_DISCONNECTING:
-                connectStateChangeListener.onConnectionStateChange(DISCONNECTING);
+                state = DISCONNECTING;
                 break;
+
+            default:
+                return;
+        }
+
+        notifyConnectStateChange(state);
+
+        if(state == CONNECTED) {
+            if(!gatt.discoverServices()) {
+                fail(DISCOVER_SERVICES_FAIL);
+            } else {
+                state = DISCOVER_SERVICES;
+
+                notifyConnectStateChange(state);
+            }
+        }
+    }
+
+    private void notifyConnectStateChange(ConnectStateChangeListener.ConnectionState state) {
+        for(ConnectStateChangeListener listener : connectStateChangeListenerMap.values()) {
+            listener.onConnectionStateChange(state);
         }
     }
 
@@ -152,9 +202,9 @@ final class GattCallback extends BluetoothGattCallback {
             info.add(new ServicePackageInfo(service));
         }
 
-        if(servicesDiscoveredListener == null) return;
-
-        servicesDiscoveredListener.onServicesDiscovered(info);
+        for(ServicesDiscoveredListener listener : servicesDiscoveredListenerMap.values()) {
+            listener.onServicesDiscovered(info);
+        }
     }
 
     @Override
@@ -164,9 +214,9 @@ final class GattCallback extends BluetoothGattCallback {
             return;
         }
 
-        if(characteristicDataListener == null) return;
-
-        characteristicDataListener.onCharacteristicData(DataAction.READ, characteristic.getValue());
+        for(CharacteristicDataListener listener : characteristicDataListenerMap.values()) {
+            listener.onCharacteristicData(DataAction.READ, characteristic.getValue());
+        }
     }
 
     @Override
@@ -176,17 +226,17 @@ final class GattCallback extends BluetoothGattCallback {
             return;
         }
 
-        if(characteristicDataListener == null) return;
-
-        characteristicDataListener.onCharacteristicData(DataAction.WRITE, characteristic.getValue());
+        for(CharacteristicDataListener listener : characteristicDataListenerMap.values()) {
+            listener.onCharacteristicData(DataAction.WRITE, characteristic.getValue());
+        }
     }
 
     @Override
     public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
 
-        if(characteristicDataListener == null) return;
-
-        characteristicDataListener.onCharacteristicData(DataAction.CHANGED, characteristic.getValue());
+        for(CharacteristicDataListener listener : characteristicDataListenerMap.values()) {
+            listener.onCharacteristicData(DataAction.CHANGED, characteristic.getValue());
+        }
     }
 
     @Override
@@ -196,9 +246,9 @@ final class GattCallback extends BluetoothGattCallback {
             return;
         }
 
-        if(descriptorDataListener == null) return;
-
-        descriptorDataListener.onDescriptorData(DataAction.READ, descriptor.getValue());
+        for(DescriptorDataListener listener : descriptorDataListenerMap.values()) {
+            listener.onDescriptorData(DataAction.READ, descriptor.getValue());
+        }
     }
 
     @Override
@@ -208,9 +258,9 @@ final class GattCallback extends BluetoothGattCallback {
             return;
         }
 
-        if(descriptorDataListener == null) return;
-
-        descriptorDataListener.onDescriptorData(DataAction.WRITE, descriptor.getValue());
+        for(DescriptorDataListener listener : descriptorDataListenerMap.values()) {
+            listener.onDescriptorData(DataAction.WRITE, descriptor.getValue());
+        }
     }
 
     @Override
@@ -220,9 +270,9 @@ final class GattCallback extends BluetoothGattCallback {
             return;
         }
 
-        if(reliableWriteCompletedListener == null) return;
-
-        reliableWriteCompletedListener.onReliableWriteCompleted();
+        for(ReliableWriteCompletedListener listener : reliableWriteCompletedListenerMap.values()) {
+            listener.onReliableWriteCompleted();
+        }
     }
 
     @Override
@@ -232,9 +282,9 @@ final class GattCallback extends BluetoothGattCallback {
             return;
         }
 
-        if(readRemoteRssiListener == null) return;
-
-        readRemoteRssiListener.onReadRemoteRssi(rssi);
+        for(ReadRemoteRssiListener listener : readRemoteRssiListenerMap.values()) {
+            listener.onReadRemoteRssi(rssi);
+        }
     }
 
     @Override
@@ -244,9 +294,9 @@ final class GattCallback extends BluetoothGattCallback {
             return;
         }
 
-        if(mtuChangedListener == null) return;
-
-        mtuChangedListener.onMtuChanged(mtu);
+        for(MtuChangedListener listener : mtuChangedListenerMap.values()) {
+            listener.onMtuChanged(mtu);
+        }
     }
     @Override
     public void onPhyUpdate(BluetoothGatt gatt, int txPhy, int rxPhy, int status) {
@@ -255,9 +305,9 @@ final class GattCallback extends BluetoothGattCallback {
             return;
         }
 
-        if(phyDataListener == null) return;
-
-        phyDataListener.onPhyData(DataAction.UPDATE, txPhy, rxPhy);
+        for(PhyDataListener listener : phyDataListenerMap.values()) {
+            listener.onPhyData(DataAction.UPDATE, txPhy, rxPhy);
+        }
     }
 
     @Override
@@ -267,9 +317,9 @@ final class GattCallback extends BluetoothGattCallback {
             return;
         }
 
-        if(characteristicDataListener == null) return;
-
-        phyDataListener.onPhyData(DataAction.READ, txPhy, rxPhy);
+        for(PhyDataListener listener : phyDataListenerMap.values()) {
+            listener.onPhyData(DataAction.READ, txPhy, rxPhy);
+        }
     }
 
 }

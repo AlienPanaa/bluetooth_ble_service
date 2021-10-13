@@ -4,6 +4,7 @@ public interface GattExceptionListener {
 
     enum GattAction {
         CONNECTION,
+        DISCOVER_SERVICES_FAIL,
         SERVICES_DISCOVERED,
         CHARACTERISTIC_READ,
         CHARACTERISTIC_WRITE,

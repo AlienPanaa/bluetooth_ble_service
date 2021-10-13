@@ -9,9 +9,7 @@ public interface ConnectStateChangeListener {
         CONNECTED,
         DISCONNECTING,
         DISCONNECTED,
-
-        DISCOVERING_SERVICES,
-        DISCOVER_SERVICES_FAIL
+        DISCOVER_SERVICES
     }
 
     void onConnectionStateChange(ConnectionState state);

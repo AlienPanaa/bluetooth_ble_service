@@ -18,6 +18,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 
 import com.alien.bluetooth_ble_service.ble_type.listener.gatt.CharacteristicDataListener;
+import com.alien.bluetooth_ble_service.ble_type.listener.gatt.ConnectStateChangeListener;
 import com.alien.bluetooth_ble_service.ble_type.listener.gatt.DescriptorDataListener;
 import com.alien.bluetooth_ble_service.ble_type.listener.gatt.GattExceptionListener;
 import com.alien.bluetooth_ble_service.ble_type.listener.gatt.MtuChangedListener;
@@ -42,6 +43,11 @@ public class GattController {
 
     public GattController setGattExceptionListener(GattExceptionListener gattExceptionListener) {
         gattCallback.setGattExceptionListener(gattExceptionListener);
+        return this;
+    }
+
+    public GattController listenerConnection(ConnectStateChangeListener listenerConnection) {
+        gattCallback.setConnectStateChangeListener(listenerConnection);
         return this;
     }
 
