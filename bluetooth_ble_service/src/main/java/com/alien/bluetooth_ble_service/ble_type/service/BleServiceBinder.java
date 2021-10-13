@@ -82,6 +82,10 @@ public class BleServiceBinder extends BluetoothBinder {
         return null;
     }
 
+    public boolean isClientConnected() {
+        return bluetoothGatt != null;
+    }
+
     public GattController getGattController() {
         assert bluetoothGatt != null;
 

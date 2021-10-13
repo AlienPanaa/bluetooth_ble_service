@@ -58,7 +58,7 @@ final class GattCallback extends BluetoothGattCallback {
 
     public synchronized void setCharacteristicDataListener(CharacteristicDataListener listener) {
         Thread thread = Thread.currentThread();
-        if(listener == null || characteristicDataListenerMap.containsKey(thread)) {
+        if(listener == null) {
             return;
         }
         characteristicDataListenerMap.put(thread, listener);
@@ -66,7 +66,7 @@ final class GattCallback extends BluetoothGattCallback {
 
     public synchronized void setConnectStateChangeListener(ConnectStateChangeListener listener) {
         Thread thread = Thread.currentThread();
-        if(listener == null || connectStateChangeListenerMap.containsKey(thread)) {
+        if(listener == null) {
             return;
         }
         connectStateChangeListenerMap.put(thread, listener);
@@ -74,7 +74,7 @@ final class GattCallback extends BluetoothGattCallback {
 
     public synchronized void setDescriptorDataListener(DescriptorDataListener listener) {
         Thread thread = Thread.currentThread();
-        if(listener == null || descriptorDataListenerMap.containsKey(thread)) {
+        if(listener == null) {
             return;
         }
         descriptorDataListenerMap.put(thread, listener);
@@ -82,7 +82,7 @@ final class GattCallback extends BluetoothGattCallback {
 
     public synchronized void setGattExceptionListener(GattExceptionListener listener) {
         Thread thread = Thread.currentThread();
-        if(listener == null || gattExceptionListenerMap.containsKey(thread)) {
+        if(listener == null) {
             return;
         }
         gattExceptionListenerMap.put(thread, listener);
@@ -90,7 +90,7 @@ final class GattCallback extends BluetoothGattCallback {
 
     public synchronized void setMtuChangedListener(MtuChangedListener listener) {
         Thread thread = Thread.currentThread();
-        if(listener == null || mtuChangedListenerMap.containsKey(thread)) {
+        if(listener == null) {
             return;
         }
         mtuChangedListenerMap.put(thread, listener);
@@ -98,7 +98,7 @@ final class GattCallback extends BluetoothGattCallback {
 
     public synchronized void setPhyDataListener(PhyDataListener listener) {
         Thread thread = Thread.currentThread();
-        if(listener == null || phyDataListenerMap.containsKey(thread)) {
+        if(listener == null) {
             return;
         }
         phyDataListenerMap.put(thread, listener);
@@ -106,7 +106,7 @@ final class GattCallback extends BluetoothGattCallback {
 
     public synchronized void setReadRemoteRssiListener(ReadRemoteRssiListener listener) {
         Thread thread = Thread.currentThread();
-        if(listener == null || readRemoteRssiListenerMap.containsKey(thread)) {
+        if(listener == null) {
             return;
         }
         readRemoteRssiListenerMap.put(thread, listener);
@@ -114,7 +114,7 @@ final class GattCallback extends BluetoothGattCallback {
 
     public synchronized void setReliableWriteCompletedListener(ReliableWriteCompletedListener listener) {
         Thread thread = Thread.currentThread();
-        if(listener == null || reliableWriteCompletedListenerMap.containsKey(thread)) {
+        if(listener == null) {
             return;
         }
         reliableWriteCompletedListenerMap.put(thread, listener);
@@ -122,7 +122,7 @@ final class GattCallback extends BluetoothGattCallback {
 
     public synchronized void setServicesDiscoveredListener(ServicesDiscoveredListener listener) {
         Thread thread = Thread.currentThread();
-        if(listener == null || servicesDiscoveredListenerMap.containsKey(thread)) {
+        if(listener == null) {
             return;
         }
         servicesDiscoveredListenerMap.put(thread, listener);
